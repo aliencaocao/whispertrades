@@ -58,7 +58,7 @@ class WTClient:
             payload['statuses'] = statuses
         if include_details:
             payload['include_details'] = include_details
-        response = requests.get(f"{self.endpoint}bots/{bot_id}", headers=self.headers, data=payload)
+        response = requests.get(f"{self.endpoint}bots/{bot_id}", headers=self.headers, params=payload)
         response = BaseResponse(**orjson.loads(response.text))
         print(response)
         if response.success:

@@ -1,140 +1,230 @@
 import requests
 from whispertrade import ENDPOINT
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Literal, Optional
 from datetime import datetime, time
 
 #
-# bot_response = {
-#         "entry_condition": {
-#             "allocation_type": "Leverage Amount",
-#             "contract_quantity": null,
-#             "percent_of_portfolio": null,
-#             "leverage_amount": "2.5",
-#             "entry_speed": "Normal",
-#             "maximum_entries_per_day": 1,
-#             "earliest_time_of_day": "9:35 AM",
-#             "latest_time_of_day": null,
-#             "days_of_week": "Monday",
-#             "minutes_between_positions": 0,
-#             "minimum_starting_premium": null,
-#             "maximum_starting_premium": null,
-#             "minimum_days_to_expiration": 4,
-#             "target_days_to_expiration": 4,
-#             "maximum_days_to_expiration": 4,
-#             "minimum_underlying_percent_move_from_close": null,
-#             "maximum_underlying_percent_move_from_close": null,
-#             "same_day_re_entry": null,
-#             "avoid_fomc": null,
-#             "move_strike_selection_with_conflict": "Yes",
-#             "variables": [],
-#             "call_short_strike_type": null,
-#             "call_short_strike_minimum_delta": null,
-#             "call_short_strike_target_delta": null,
-#             "call_short_strike_maximum_delta": null,
-#             "call_short_strike_minimum_premium": null,
-#             "call_short_strike_target_premium": null,
-#             "call_short_strike_maximum_premium": null,
-#             "call_long_strike_type": null,
-#             "call_long_strike_minimum_delta": null,
-#             "call_long_strike_target_delta": null,
-#             "call_long_strike_maximum_delta": null,
-#             "call_long_strike_minimum_premium": null,
-#             "call_long_strike_target_premium": null,
-#             "call_long_strike_maximum_premium": null,
-#             "call_spread_minimum_width_points": null,
-#             "call_spread_target_width_points": null,
-#             "call_spread_maximum_width_points": null,
-#             "call_spread_minimum_width_percent": null,
-#             "call_spread_target_width_percent": null,
-#             "call_spread_maximum_width_percent": null,
-#             "call_spread_strike_target_delta": null,
-#             "call_spread_strike_target_premium": null,
-#             "restrict_call_spread_width_by": null,
-#             "call_spread_smart_width": false,
-#             "put_short_strike_type": "Delta",
-#             "put_short_strike_minimum_delta": "15.0",
-#             "put_short_strike_target_delta": "20.0",
-#             "put_short_strike_maximum_delta": "22.0",
-#             "put_short_strike_minimum_premium": null,
-#             "put_short_strike_target_premium": null,
-#             "put_short_strike_maximum_premium": null,
-#             "put_long_strike_type": null,
-#             "put_long_strike_minimum_delta": null,
-#             "put_long_strike_target_delta": null,
-#             "put_long_strike_maximum_delta": null,
-#             "put_long_strike_minimum_premium": null,
-#             "put_long_strike_target_premium": null,
-#             "put_long_strike_maximum_premium": null,
-#             "put_spread_minimum_width_points": null,
-#             "put_spread_target_width_points": 75,
-#             "put_spread_maximum_width_points": 90,
-#             "put_spread_minimum_width_percent": null,
-#             "put_spread_target_width_percent": null,
-#             "put_spread_maximum_width_percent": null,
-#             "put_spread_strike_target_delta": null,
-#             "put_spread_strike_target_premium": null,
-#             "restrict_put_spread_width_by": null,
-#             "put_spread_smart_width": false
-#         },
-#         "exit_condition": {
-#             "exit_speed": "Normal",
-#             "profit_premium_value": "$0.05",
-#             "profit_target_percent": null,
-#             "stop_loss_percent": "350",
-#             "loss_premium_value": null,
-#             "itm_percent_stop": null,
-#             "delta_stop": null,
-#             "monitored_stop_sensitivity": "Normal",
-#             "trail_profit_percent_trigger": null,
-#             "trail_profit_percent_amount": null,
-#             "trail_profit_premium_trigger": null,
-#             "trail_profit_premium_amount": null,
-#             "variables": [],
-#             "close_short_strike_only": "No",
-#             "sell_abandoned_long_strike": "Yes"
-#         },
-#         "adjustments": [
-#             {
-#                 "number": "JPYW9UK9AL",
-#                 "status": "Enabled",
-#                 "type": "Enter Second Position",
-#                 "days_of_week": "All",
-#                 "days_to_expiration": 1,
-#                 "time_of_day": "3:45 PM",
-#                 "minimum_position_delta": null,
-#                 "maximum_position_delta": null,
-#                 "minimum_position_profit_percent": null,
-#                 "maximum_position_profit_percent": null,
-#                 "minimum_underlying_percent_move_from_close": null,
-#                 "maximum_underlying_percent_move_from_close": null,
-#                 "variables": []
-#             }
-#         ],
-#         "notifications": [
-#             {
-#                 "number": "CKYLJK5O9E",
-#                 "event": "Order Filled",
-#                 "type": "Email"
-#             },
-#             {
-#                 "number": "SMUAJAY9BK",
-#                 "event": "Position Expired",
-#                 "type": "Email"
-#             },
-#         ],
-#         "variables": [
-#             {
-#                 "number": "VIZG80TGC9",
-#                 "name": "Weekly PCS Realized Profit Today",
-#                 "value": "150.56",
-#                 "bot_value_to_set": "Bot Profit Realized Today $",
-#                 "free_text_value_to_set": null,
-#                 "last_updated_at": "2023-10-05T18:55:23.000000Z"
-#             },
-#         ]
-#     }
-# }
+sample = [
+    {
+        "number": "BYZ8UNMX8M",
+        "name": "SPX daily puts",
+        "broker_connection": {
+            "name": "Son",
+            "number": "HSROALFT91",
+            "account_number": "220715602",
+        },
+        "is_paper": False,
+        "status": "Enabled",
+        "can_enable": False,
+        "can_disable": True,
+        "symbol": "SPXW",
+        "type": "Put Credit Spread",
+        "notes": "https://wealthyoption.com/#trade_process",
+        "last_active_at": "2023-10-06T19:59:05.000000Z",
+        "disabled_at": None,
+        "entry_condition": {
+            "allocation_type": "Percent of Portfolio",
+            "contract_quantity": None,
+            "percent_of_portfolio": "100.000",
+            "leverage_amount": None,
+            "entry_speed": "Patient",
+            "maximum_entries_per_day": 5,
+            "earliest_time_of_day": None,
+            "latest_time_of_day": None,
+            "days_of_week": "All",
+            "minutes_between_positions": 0,
+            "minimum_starting_premium": "$0.30",
+            "maximum_starting_premium": None,
+            "minimum_days_to_expiration": 1,
+            "target_days_to_expiration": 1,
+            "maximum_days_to_expiration": 4,
+            "minimum_underlying_percent_move_from_close": None,
+            "maximum_underlying_percent_move_from_close": None,
+            "same_day_re_entry": None,
+            "avoid_fomc": "Avoid entry 1 day before to 1 day after FOMC",
+            "move_strike_selection_with_conflict": "No",
+            "variables": [],
+            "call_short_strike_type": None,
+            "call_short_strike_minimum_delta": None,
+            "call_short_strike_target_delta": None,
+            "call_short_strike_maximum_delta": None,
+            "call_short_strike_minimum_premium": None,
+            "call_short_strike_target_premium": None,
+            "call_short_strike_maximum_premium": None,
+            "call_long_strike_type": None,
+            "call_long_strike_minimum_delta": None,
+            "call_long_strike_target_delta": None,
+            "call_long_strike_maximum_delta": None,
+            "call_long_strike_minimum_premium": None,
+            "call_long_strike_target_premium": None,
+            "call_long_strike_maximum_premium": None,
+            "call_spread_minimum_width_points": None,
+            "call_spread_target_width_points": None,
+            "call_spread_maximum_width_points": None,
+            "call_spread_minimum_width_percent": None,
+            "call_spread_target_width_percent": None,
+            "call_spread_maximum_width_percent": None,
+            "call_spread_strike_target_delta": None,
+            "call_spread_strike_target_premium": None,
+            "restrict_call_spread_width_by": None,
+            "call_spread_smart_width": False,
+            "put_short_strike_type": "Delta",
+            "put_short_strike_minimum_delta": "2.2",
+            "put_short_strike_target_delta": "2.4",
+            "put_short_strike_maximum_delta": "2.5",
+            "put_short_strike_minimum_premium": None,
+            "put_short_strike_target_premium": None,
+            "put_short_strike_maximum_premium": None,
+            "put_long_strike_type": None,
+            "put_long_strike_minimum_delta": None,
+            "put_long_strike_target_delta": None,
+            "put_long_strike_maximum_delta": None,
+            "put_long_strike_minimum_premium": None,
+            "put_long_strike_target_premium": None,
+            "put_long_strike_maximum_premium": None,
+            "put_spread_minimum_width_points": None,
+            "put_spread_target_width_points": 300,
+            "put_spread_maximum_width_points": None,
+            "put_spread_minimum_width_percent": None,
+            "put_spread_target_width_percent": None,
+            "put_spread_maximum_width_percent": None,
+            "put_spread_strike_target_delta": None,
+            "put_spread_strike_target_premium": None,
+            "restrict_put_spread_width_by": None,
+            "put_spread_smart_width": True,
+        },
+        "exit_condition": {
+            "exit_speed": "Normal",
+            "profit_premium_value": None,
+            "profit_target_percent": "90.00%",
+            "stop_loss_percent": None,
+            "loss_premium_value": None,
+            "itm_percent_stop": None,
+            "delta_stop": None,
+            "monitored_stop_sensitivity": "Normal",
+            "trail_profit_percent_trigger": None,
+            "trail_profit_percent_amount": None,
+            "trail_profit_premium_trigger": None,
+            "trail_profit_premium_amount": None,
+            "variables": [],
+            "close_short_strike_only": "Yes",
+            "sell_abandoned_long_strike": "No",
+        },
+        "adjustments": [],
+        "notifications": [],
+        "variables": [],
+    },
+    {
+        "number": "M7DIJXRCQ2",
+        "name": "SPX daily puts dad",
+        "broker_connection": {
+            "name": "Dad",
+            "number": "9ADTHKNHVC",
+            "account_number": "220720701",
+        },
+        "is_paper": False,
+        "status": "Enabled",
+        "can_enable": False,
+        "can_disable": True,
+        "symbol": "SPXW",
+        "type": "Put Credit Spread",
+        "notes": None,
+        "last_active_at": "2023-10-06T19:59:05.000000Z",
+        "disabled_at": None,
+        "entry_condition": {
+            "allocation_type": "Percent of Portfolio",
+            "contract_quantity": None,
+            "percent_of_portfolio": "90.000",
+            "leverage_amount": None,
+            "entry_speed": "Patient",
+            "maximum_entries_per_day": 5,
+            "earliest_time_of_day": None,
+            "latest_time_of_day": None,
+            "days_of_week": "All",
+            "minutes_between_positions": 0,
+            "minimum_starting_premium": "$0.30",
+            "maximum_starting_premium": None,
+            "minimum_days_to_expiration": 1,
+            "target_days_to_expiration": 1,
+            "maximum_days_to_expiration": 4,
+            "minimum_underlying_percent_move_from_close": None,
+            "maximum_underlying_percent_move_from_close": None,
+            "same_day_re_entry": None,
+            "avoid_fomc": "Avoid entry 1 day before to 1 day after FOMC",
+            "move_strike_selection_with_conflict": "No",
+            "variables": [],
+            "call_short_strike_type": None,
+            "call_short_strike_minimum_delta": None,
+            "call_short_strike_target_delta": None,
+            "call_short_strike_maximum_delta": None,
+            "call_short_strike_minimum_premium": None,
+            "call_short_strike_target_premium": None,
+            "call_short_strike_maximum_premium": None,
+            "call_long_strike_type": None,
+            "call_long_strike_minimum_delta": None,
+            "call_long_strike_target_delta": None,
+            "call_long_strike_maximum_delta": None,
+            "call_long_strike_minimum_premium": None,
+            "call_long_strike_target_premium": None,
+            "call_long_strike_maximum_premium": None,
+            "call_spread_minimum_width_points": None,
+            "call_spread_target_width_points": None,
+            "call_spread_maximum_width_points": None,
+            "call_spread_minimum_width_percent": None,
+            "call_spread_target_width_percent": None,
+            "call_spread_maximum_width_percent": None,
+            "call_spread_strike_target_delta": None,
+            "call_spread_strike_target_premium": None,
+            "restrict_call_spread_width_by": None,
+            "call_spread_smart_width": False,
+            "put_short_strike_type": "Delta",
+            "put_short_strike_minimum_delta": "2.2",
+            "put_short_strike_target_delta": "2.3",
+            "put_short_strike_maximum_delta": "2.5",
+            "put_short_strike_minimum_premium": None,
+            "put_short_strike_target_premium": None,
+            "put_short_strike_maximum_premium": None,
+            "put_long_strike_type": None,
+            "put_long_strike_minimum_delta": None,
+            "put_long_strike_target_delta": None,
+            "put_long_strike_maximum_delta": None,
+            "put_long_strike_minimum_premium": None,
+            "put_long_strike_target_premium": None,
+            "put_long_strike_maximum_premium": None,
+            "put_spread_minimum_width_points": None,
+            "put_spread_target_width_points": 300,
+            "put_spread_maximum_width_points": None,
+            "put_spread_minimum_width_percent": None,
+            "put_spread_target_width_percent": None,
+            "put_spread_maximum_width_percent": None,
+            "put_spread_strike_target_delta": None,
+            "put_spread_strike_target_premium": None,
+            "restrict_put_spread_width_by": None,
+            "put_spread_smart_width": True,
+        },
+        "exit_condition": {
+            "exit_speed": "Normal",
+            "profit_premium_value": None,
+            "profit_target_percent": "90.00%",
+            "stop_loss_percent": None,
+            "loss_premium_value": None,
+            "itm_percent_stop": None,
+            "delta_stop": None,
+            "monitored_stop_sensitivity": "Normal",
+            "trail_profit_percent_trigger": None,
+            "trail_profit_percent_amount": None,
+            "trail_profit_premium_trigger": None,
+            "trail_profit_premium_amount": None,
+            "variables": [],
+            "close_short_strike_only": "Yes",
+            "sell_abandoned_long_strike": "No",
+        },
+        "adjustments": [],
+        "notifications": [],
+        "variables": [],
+    },
+]
 
 
 class BrokerConnection(BaseModel):
@@ -143,97 +233,120 @@ class BrokerConnection(BaseModel):
     account_number: str
 
 
+class DayOfWeek(BaseModel):
+    days_of_week: str
+
+    @field_validator('days_of_week')
+    def validate_days_of_week(cls, days_of_week: str):
+        valid_values = ["All", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        for day in days_of_week.split(', '):
+            if day not in valid_values:
+                raise ValueError(f"Invalid day of the week: {day}")
+        return days_of_week
+
+
 class EntryCondition(BaseModel):
     allocation_type: Literal["Leverage Amount", "Fixed Contract Quantity", "Percent of Portfolio"]
     contract_quantity: Optional[int]  # TODO: check
-    percent_of_portfolio: Optional[int]  # TODO: check
-    leverage_amount: Optional[str]
+    percent_of_portfolio: Optional[float]
+    leverage_amount: Optional[str]  # TODO: check
     entry_speed: Literal["Patient", "Normal", "Aggressive"]
     maximum_entries_per_day: int
-    earliest_time_of_day: str
-    latest_time_of_day: Optional[time]
-    days_of_week: Literal["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    earliest_time_of_day: Optional[time]  # TODO: check
+    latest_time_of_day: Optional[time]  # TODO: check
+    days_of_week: DayOfWeek
     minutes_between_positions: int
-    minimum_starting_premium: Optional[float]
-    maximum_starting_premium: Optional[float]
+    minimum_starting_premium: Optional[str]
+    maximum_starting_premium: Optional[str]
     minimum_days_to_expiration: int
     target_days_to_expiration: int
     maximum_days_to_expiration: int
-    minimum_underlying_percent_move_from_close: Optional[float]
-    maximum_underlying_percent_move_from_close: Optional[float]
-    same_day_re_entry: Optional[str]
+    minimum_underlying_percent_move_from_close: Optional[float]  # TODO: check
+    maximum_underlying_percent_move_from_close: Optional[float]  # TODO: check
+    same_day_re_entry: Optional[str]  # TODO: check
     avoid_fomc: Optional[str]
-    move_strike_selection_with_conflict: str
-    variables: list[str]
-    call_short_strike_type: Optional[str]
-    call_short_strike_minimum_delta: Optional[float]
-    call_short_strike_target_delta: Optional[float]
-    call_short_strike_maximum_delta: Optional[float]
-    call_short_strike_minimum_premium: Optional[float]
-    call_short_strike_target_premium: Optional[float]
-    call_short_strike_maximum_premium: Optional[float]
-    call_long_strike_type: Optional[str]
-    call_long_strike_minimum_delta: Optional[float]
-    call_long_strike_target_delta: Optional[float]
-    call_long_strike_maximum_delta: Optional[float]
-    call_long_strike_minimum_premium: Optional[float]
-    call_long_strike_target_premium: Optional[float]
-    call_long_strike_maximum_premium: Optional[float]
-    call_spread_minimum_width_points: Optional[float]
-    call_spread_target_width_points: Optional[float]
-    call_spread_maximum_width_points: Optional[float]
-    call_spread_minimum_width_percent: Optional[float]
-    call_spread_target_width_percent: Optional[float]
-    call_spread_maximum_width_percent: Optional[float]
-    call_spread_strike_target_delta: Optional[float]
-    call_spread_strike_target_premium: Optional[float]
-    restrict_call_spread_width_by: Optional[str]
+    move_strike_selection_with_conflict: Literal["Yes", "No"]
+    variables: list[str]  # TODO: check
+    call_short_strike_type: Optional[str]  # TODO: check
+    call_short_strike_minimum_delta: Optional[float]  # TODO: check
+    call_short_strike_target_delta: Optional[float]  # TODO: check
+    call_short_strike_maximum_delta: Optional[float]  # TODO: check
+    call_short_strike_minimum_premium: Optional[float]  # TODO: check
+    call_short_strike_target_premium: Optional[float]  # TODO: check
+    call_short_strike_maximum_premium: Optional[float]  # TODO: check
+    call_long_strike_type: Optional[str]  # TODO: check
+    call_long_strike_minimum_delta: Optional[float]  # TODO: check
+    call_long_strike_target_delta: Optional[float]  # TODO: check
+    call_long_strike_maximum_delta: Optional[float]  # TODO: check
+    call_long_strike_minimum_premium: Optional[float]  # TODO: check
+    call_long_strike_target_premium: Optional[float]  # TODO: check
+    call_long_strike_maximum_premium: Optional[float]  # TODO: check
+    call_spread_minimum_width_points: Optional[float]  # TODO: check
+    call_spread_target_width_points: Optional[float]  # TODO: check
+    call_spread_maximum_width_points: Optional[float]  # TODO: check
+    call_spread_minimum_width_percent: Optional[float]  # TODO: check
+    call_spread_target_width_percent: Optional[float]  # TODO: check
+    call_spread_maximum_width_percent: Optional[float]  # TODO: check
+    call_spread_strike_target_delta: Optional[float]  # TODO: check
+    call_spread_strike_target_premium: Optional[float]  # TODO: check
+    restrict_call_spread_width_by: Optional[str]  # TODO: check
     call_spread_smart_width: bool
     put_short_strike_type: Optional[str]
     put_short_strike_minimum_delta: Optional[float]
     put_short_strike_target_delta: Optional[float]
     put_short_strike_maximum_delta: Optional[float]
-    put_short_strike_minimum_premium: Optional[float]
-    put_short_strike_target_premium: Optional[float]
-    put_short_strike_maximum_premium: Optional[float]
-    put_long_strike_type: Optional[str]
-    put_long_strike_minimum_delta: Optional[float]
-    put_long_strike_target_delta: Optional[float]
-    put_long_strike_maximum_delta: Optional[float]
-    put_long_strike_minimum_premium: Optional[float]
-    put_long_strike_target_premium: Optional[float]
-    put_long_strike_maximum_premium: Optional[float]
-    put_spread_minimum_width_points: Optional[float]
+    put_short_strike_minimum_premium: Optional[float]  # TODO: check
+    put_short_strike_target_premium: Optional[float]  # TODO: check
+    put_short_strike_maximum_premium: Optional[float]  # TODO: check
+    put_long_strike_type: Optional[str]  # TODO: check
+    put_long_strike_minimum_delta: Optional[float]  # TODO: check
+    put_long_strike_target_delta: Optional[float]  # TODO: check
+    put_long_strike_maximum_delta: Optional[float]  # TODO: check
+    put_long_strike_minimum_premium: Optional[float]  # TODO: check
+    put_long_strike_target_premium: Optional[float]  # TODO: check
+    put_long_strike_maximum_premium: Optional[float]  # TODO: check
+    put_spread_minimum_width_points: Optional[float]  # TODO: check
     put_spread_target_width_points: Optional[float]
     put_spread_maximum_width_points: Optional[float]
     put_spread_minimum_width_percent: Optional[float]
-    put_spread_target_width_percent: Optional[float]
-    put_spread_maximum_width_percent: Optional[float]
-    put_spread_strike_target_delta: Optional[float]
-    put_spread_strike_target_premium: Optional[float]
-    restrict_put_spread_width_by: Optional[str]
+    put_spread_target_width_percent: Optional[float]  # TODO: check
+    put_spread_maximum_width_percent: Optional[float]  # TODO: check
+    put_spread_strike_target_delta: Optional[float]  # TODO: check
+    put_spread_strike_target_premium: Optional[float]  # TODO: check
+    restrict_put_spread_width_by: Optional[str]  # TODO: check
     put_spread_smart_width: bool
+
+    @field_validator('days_of_week', mode='before', check_fields=True)
+    def convert_days_of_week(cls, value):
+        if isinstance(value, str):
+            return DayOfWeek(**{'days_of_week': value})
+        elif isinstance(value, dict):
+            return DayOfWeek(**value)
+        elif isinstance(value, DayOfWeek):
+            return value
+        else:
+            raise ValueError(f"Invalid days_of_week type: must be DayOfWeek or dict, got {type(value)}")
 
 
 class ExitCondition(BaseModel):
-    exit_speed: str
-    profit_premium_value: Optional[str]
-    profit_target_percent: Optional[float]
-    stop_loss_percent: Optional[float]
-    loss_premium_value: Optional[float]
-    itm_percent_stop: Optional[float]
-    delta_stop: Optional[float]
-    monitored_stop_sensitivity: str
-    trail_profit_percent_trigger: Optional[float]
-    trail_profit_percent_amount: Optional[float]
-    trail_profit_premium_trigger: Optional[float]
-    trail_profit_premium_amount: Optional[float]
-    variables: list[str]
-    close_short_strike_only: str
-    sell_abandoned_long_strike: str
+    exit_speed: Literal["Super Patient", "Patient", "Normal", "Aggressive", "Super Aggressive"]
+    profit_premium_value: Optional[str]  # TODO: check
+    profit_target_percent: Optional[str]
+    stop_loss_percent: Optional[float]  # TODO: check
+    loss_premium_value: Optional[float]  # TODO: check
+    itm_percent_stop: Optional[float]  # TODO: check
+    delta_stop: Optional[float]  # TODO: check
+    monitored_stop_sensitivity: Literal["Patient", "Normal", "Aggressive"]
+    trail_profit_percent_trigger: Optional[str]  # TODO: check
+    trail_profit_percent_amount: Optional[str]  # TODO: check
+    trail_profit_premium_trigger: Optional[str]  # TODO: check
+    trail_profit_premium_amount: Optional[str]  # TODO: check
+    variables: list[str]  # TODO: check
+    close_short_strike_only: Literal["Yes", "No"]
+    sell_abandoned_long_strike: Literal["Yes", "No"]
 
 
-class Adjustment(BaseModel):
+class Adjustment(BaseModel):  # TODO: check
     number: str
     status: str
     type: str
@@ -249,13 +362,13 @@ class Adjustment(BaseModel):
     variables: list[str]
 
 
-class Notification(BaseModel):
+class Notification(BaseModel):  # TODO: check
     number: str
     event: str
     type: str
 
 
-class Variable(BaseModel):
+class Variable(BaseModel):  # TODO: check
     number: str
     name: str
     value: str
@@ -277,11 +390,11 @@ class BotResponse(BaseModel):
     notes: Optional[str]
     last_active_at: Optional[datetime]
     disabled_at: Optional[datetime]
-    entry_condition: Optional[EntryCondition] = None
-    exit_condition: Optional[ExitCondition] = None
-    adjustments: Optional[list[Adjustment]] = None
-    notifications: Optional[list[Notification]] = None
-    variables: Optional[list[Variable]] = None
+    entry_condition: EntryCondition = None
+    exit_condition: ExitCondition = None
+    adjustments: list[Optional[Adjustment]] = None
+    notifications: list[Optional[Notification]] = None
+    variables: list[Optional[Variable]] = None
 
 
 def toCamalCase(s: str) -> str:
