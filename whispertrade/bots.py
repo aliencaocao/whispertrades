@@ -277,14 +277,24 @@ class BotResponse(BaseModel):
     notes: Optional[str]
     last_active_at: Optional[datetime]
     disabled_at: Optional[datetime]
-    entry_condition: Optional[EntryCondition]
-    exit_condition: Optional[ExitCondition]
-    adjustments: Optional[list[Adjustment]]
-    notifications: Optional[list[Notification]]
-    variables: Optional[list[Variable]]
+    entry_condition: Optional[EntryCondition] = None
+    exit_condition: Optional[ExitCondition] = None
+    adjustments: Optional[list[Adjustment]] = None
+    notifications: Optional[list[Notification]] = None
+    variables: Optional[list[Variable]] = None
+
+
+def toCamalCase(s: str) -> str:
+    return s.replace('_', ' ').title().replace(' ', '')
 
 
 class Bot:
     def __init__(self, data: BotResponse):
+        self._BotResponse = data
         for key, value in data.model_dump().items():
+            if isinstance(value, dict):
+                value = globals()[toCamalCase(key)](**value)
             setattr(self, key, value)
+
+    def __repr__(self):
+        return str(self._BotResponse)
