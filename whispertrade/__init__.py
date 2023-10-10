@@ -54,7 +54,7 @@ class WTClient:
         if statuses:
             for status in statuses:
                 if status not in valid_statuses:
-                    raise ValueError(f"Invalid status: {status}")
+                    raise ValueError(f"Invalid status: {status}. Valid status are {valid_statuses}")
             payload['statuses'] = statuses
         if include_details:
             payload['include_details'] = include_details
