@@ -3,7 +3,6 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator
 
-#
 sample = [
     {
         "number": "VCRPZ6ZNZZ",
@@ -118,7 +117,7 @@ sample = [
 
 
 class BrokerConnection(BaseModel):
-    name: Optional[str]  # only when using PAPER
+    name: Optional[str]
     number: str
     account_number: str
 
@@ -139,7 +138,7 @@ class EntryCondition(BaseModel):
     allocation_type: Literal["Leverage Amount", "Contract Quantity", "Percent of Portfolio"]
     contract_quantity: Optional[int]
     percent_of_portfolio: Optional[float]
-    leverage_amount: Optional[str]  # TODO: check
+    leverage_amount: Optional[float]
     entry_speed: Literal["Patient", "Normal", "Aggressive"]
     maximum_entries_per_day: int
     earliest_time_of_day: Optional[time]
@@ -153,7 +152,7 @@ class EntryCondition(BaseModel):
     maximum_days_to_expiration: int
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
-    same_day_re_entry: Optional[str]  # TODO: check
+    same_day_re_entry: Optional[Literal["Profit", "Loss"]]  # TODO: check
     avoid_fomc: Optional[str]
     move_strike_selection_with_conflict: Literal["Yes", "No"]
     variables: list[str]  # TODO: check
@@ -207,7 +206,7 @@ class EntryCondition(BaseModel):
     put_spread_smart_width: bool
 
     @field_validator('days_of_week', mode='before', check_fields=True)
-    def convert_days_of_week(cls, value):
+    def __convert_days_of_week(cls, value):
         if isinstance(value, str):
             return DayOfWeek(**{'days_of_week': value})
         elif isinstance(value, dict):
@@ -298,6 +297,25 @@ class Bot:
             if isinstance(value, dict):
                 value = globals()[toCamalCase(key)](**value)
             setattr(self, key, value)
+
+        # attributes for IDE type hinting
+        self.number: str = data.number
+        self.name: str = data.name
+        self.broker_connection: BrokerConnection = data.broker_connection
+        self.is_paper: bool = data.is_paper
+        self.status: Literal["Enabled", "Disabled", "Disable on Close"] = data.status
+        self.can_enable: bool = data.can_enable
+        self.can_disable: bool = data.can_disable
+        self.symbol: str = data.symbol
+        self.type: str = data.type
+        self.notes: Optional[str] = data.notes
+        self.last_active_at: Optional[datetime] = data.last_active_at
+        self.disabled_at: Optional[datetime] = data.disabled_at
+        self.entry_condition: EntryCondition = data.entry_condition
+        self.exit_condition: ExitCondition = data.exit_condition
+        self.adjustments: list[Optional[Adjustment]] = data.adjustments
+        self.notifications: list[Optional[Notification]] = data.notifications
+        self.variables: list[Optional[Variable]] = data.variables
 
     def __repr__(self):
         return str(self._BotResponse)
