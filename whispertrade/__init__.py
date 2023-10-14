@@ -1,21 +1,13 @@
-from pydantic import BaseModel
-import requests
-import orjson
-from typing import Union, Optional
+from typing import Union
 
-ENDPOINT = 'https://api.whispertrades.com/v1/'
+import orjson
+import requests
+from pydantic import BaseModel
 
 from .bots import Bot, BotResponse
+from .common import APIError, BaseResponse
 
-
-class BaseResponse(BaseModel):
-    success: bool
-    message: str
-    data: list = []
-
-
-class APIError(Exception):
-    pass
+ENDPOINT = 'https://api.whispertrades.com/v1/'
 
 
 class WTClient:
@@ -23,6 +15,7 @@ class WTClient:
     Client for the WhisperTrade API.
     To initialize, provide a valid API token. Endpoint can be customized if needed e.g. proxy server etc.
     """
+
     def __init__(self, token: str, auto_init: bool = True, endpoint: str = ENDPOINT):
         """
         :param token: API token obtained from WhisperTrade
@@ -37,16 +30,16 @@ class WTClient:
         self._bots: dict[str, Bot] = {}
 
         if auto_init:
-            self._get_bots(include_details=True)
+            self.__get_bots(include_details=True)
 
     @property
     def bots(self) -> dict[str, Bot]:
         """Returns a list of Bot objects that was cached by the previous call to get_bots(). To refresh, call get_bots() again. If get_bots() was never called, accessing this attribute will call get_bots() and return the result."""
         if not self._bots:
-            self._get_bots(include_details=True)
+            self.__get_bots(include_details=True)
         return self._bots
 
-    def _get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
+    def __get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}
         if isinstance(bot_number, int):
             bot_number = str(bot_number)
@@ -76,7 +69,7 @@ class WTClient:
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
         :param include_details: Optional, defaults to False.
         """
-        return self._get_bots(statuses=statuses, include_details=include_details)
+        return self.__get_bots(statuses=statuses, include_details=include_details)
 
     def get_bot(self, bot_number: Union[int, str], statuses: list = None, include_details: bool = True):
         """
@@ -85,5 +78,5 @@ class WTClient:
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
         :param include_details: Optional, defaults to True.
         """
-        self._get_bots(bot_number=bot_number, statuses=statuses, include_details=include_details)
+        self.__get_bots(bot_number=bot_number, statuses=statuses, include_details=include_details)
         return self.bots[bot_number]

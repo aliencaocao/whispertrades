@@ -1,7 +1,13 @@
 from datetime import datetime, time
-from typing import Literal, Optional
+from typing import Literal, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel, field_validator
+
+if TYPE_CHECKING:
+    from . import WTClient
+from .common import APIError, BaseResponse
+
+import orjson
 
 sample = [
     {
@@ -330,15 +336,15 @@ class Adjustment(BaseModel):
 class Notification(BaseModel):  # TODO: check
     number: str
     event: Literal[
-    "Order Placed",
-    "Order Filled",
-    "Order Canceled",
-    "Position % In-the-Money",
-    "Position % Loss",
-    "Position % Profit",
-    "Position Days to Expiration",
-    "Position Delta (Loss)",
-    "Position Expired"
+        "Order Placed",
+        "Order Filled",
+        "Order Canceled",
+        "Position % In-the-Money",
+        "Position % Loss",
+        "Position % Profit",
+        "Position Days to Expiration",
+        "Position Delta (Loss)",
+        "Position Expired"
     ]
     type: Literal["Email"]
 
@@ -368,8 +374,9 @@ def toCamalCase(s: str) -> str:
 
 
 class Bot:
-    def __init__(self, data: BotResponse):
+    def __init__(self, data: BotResponse, client: WTClient):
         self._BotResponse = data
+        self.client = client
         for key, value in data.model_dump().items():
             if isinstance(value, dict):
                 value = globals()[toCamalCase(key)](**value)
@@ -394,5 +401,34 @@ class Bot:
         self.notifications: list[Optional[Notification]] = data.notifications
         self.variables: list[Optional[Variable]] = data.variables
 
+        self.endpoint = f'{self.client.endpoint}bots/{self.number}/'
+
     def __repr__(self):
         return str(self._BotResponse)
+
+    def enable(self):
+        response = requests.put(self.endpoint + 'enable', headers=self.client.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if not response.success:
+            raise APIError(response.message)
+
+    def disable(self):
+        response = requests.put(self.endpoint + 'disable', headers=self.client.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if not response.success:
+            raise APIError(response.message)
+
+    @property
+    def orders(self):
+        return
+
+    @property
+    def positions(self):
+        return
+
+    @property
+    def reports(self):
+        return
+
+    def get_variable(self, number: str) -> Variable:
+        return
