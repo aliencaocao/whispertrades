@@ -60,9 +60,11 @@ class WTClient:
             payload['include_details'] = include_details
         response = requests.get(f"{self.endpoint}bots/{bot_id}", headers=self.headers, params=payload)
         response = BaseResponse(**orjson.loads(response.text))
-        print(response)
         if response.success:
+            self._bots.clear()
             for bot_data in response.data:
+                if bot_data['name'] == 'test':
+                    print(bot_data)
                 bot = Bot(BotResponse(**bot_data))
                 self._bots.append(bot)
         else:

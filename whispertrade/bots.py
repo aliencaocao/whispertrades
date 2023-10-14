@@ -22,14 +22,14 @@ sample = [
         "last_active_at": None,
         "disabled_at": None,
         "entry_condition": {
-            "allocation_type": "Contract Quantity",
-            "contract_quantity": 1,
+            "allocation_type": "Leverage Amount",
+            "contract_quantity": None,
             "percent_of_portfolio": None,
-            "leverage_amount": None,
+            "leverage_amount": "5.0",
             "entry_speed": "Normal",
-            "maximum_entries_per_day": 1,
-            "earliest_time_of_day": "21:31",
-            "latest_time_of_day": "21:50",
+            "maximum_entries_per_day": 5,
+            "earliest_time_of_day": None,
+            "latest_time_of_day": None,
             "days_of_week": "All",
             "minutes_between_positions": 0,
             "minimum_starting_premium": None,
@@ -42,7 +42,14 @@ sample = [
             "same_day_re_entry": None,
             "avoid_fomc": None,
             "move_strike_selection_with_conflict": "No",
-            "variables": [],
+            "variables": [
+                {
+                    "number": "MXCFKNY0BC",
+                    "name": "testvar",
+                    "condition": "Equal To",
+                    "value": "hi",
+                }
+            ],
             "call_short_strike_type": None,
             "call_short_strike_minimum_delta": None,
             "call_short_strike_target_delta": None,
@@ -109,10 +116,43 @@ sample = [
             "close_short_strike_only": "No",
             "sell_abandoned_long_strike": "No",
         },
-        "adjustments": [],
+        "adjustments": [
+            {
+                "number": "JU4ABN7RRA",
+                "status": "Enabled",
+                "type": "Close Position Early",
+                "days_of_week": "Monday, Wednesday, Thursday, Friday",
+                "days_to_expiration": 3,
+                "time_of_day": "21:33",
+                "minimum_position_delta": "4.0%",
+                "maximum_position_delta": "4.0%",
+                "minimum_position_profit_percent": "4.00%",
+                "maximum_position_profit_percent": "4.00%",
+                "minimum_underlying_percent_move_from_close": "4.00%",
+                "maximum_underlying_percent_move_from_close": "4.00%",
+                "variables": [
+                    {
+                        "number": "MXCFKNY0BC",
+                        "name": "testvar",
+                        "condition": "Less Than",
+                        "value": "444",
+                    }
+                ],
+            }
+        ],
         "notifications": [],
-        "variables": [],
+        "variables": [
+            {
+                "number": "MXCFKNY0BC",
+                "name": "testvar",
+                "value": None,
+                "bot_value_to_set": "Free Text",
+                "free_text_value_to_set": "hi",
+                "last_updated_at": "2023-10-14T02:39:04.000000Z",
+            }
+        ],
     }
+
 ]
 
 
@@ -134,6 +174,31 @@ class DayOfWeek(BaseModel):
         return days_of_week
 
 
+class Variable(BaseModel):
+    number: str
+    name: str
+    value: Optional[str]
+    condition: Literal["Contains", "Equal To", "Not Equal To", "Less Than", "Greater Than"] = None
+    bot_value_to_set: Optional[Literal[
+        "Free Text",
+        "Bot Open Position Count",
+        "Bot Positions Entered Today Count",
+        "Bot Positions Exited Today Count",
+        "Bot Current Position Delta",
+        "Bot Current Position MID Price",
+        "Bot Current Position Minutes in Trade",
+        "Bot Current Position Days in Trade",
+        "Bot Current Position Minutes to Expiration",
+        "Bot Current Position DTE",
+        "Bot Current Position Profit $",
+        "Bot Current Position Profit %",
+        "Bot Last Closed Position Today Profit $",
+        "Bot Profit Realized Today $"
+    ]] = None
+    free_text_value_to_set: Optional[str] = None
+    last_updated_at: Optional[datetime] = None
+
+
 class EntryCondition(BaseModel):
     allocation_type: Literal["Leverage Amount", "Contract Quantity", "Percent of Portfolio"]
     contract_quantity: Optional[int]
@@ -152,10 +217,10 @@ class EntryCondition(BaseModel):
     maximum_days_to_expiration: int
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
-    same_day_re_entry: Optional[Literal["Profit", "Loss"]]  # TODO: check
+    same_day_re_entry: Optional[Literal["Profit", "Loss"]]
     avoid_fomc: Optional[str]
-    move_strike_selection_with_conflict: Literal["Yes", "No"]
-    variables: list[str]  # TODO: check
+    move_strike_selection_with_conflict: bool
+    variables: list[Optional[Variable]]  # TODO: check
     call_short_strike_type: Optional[str]  # TODO: check
     call_short_strike_minimum_delta: Optional[float]
     call_short_strike_target_delta: Optional[float]
@@ -230,40 +295,42 @@ class ExitCondition(BaseModel):
     trail_profit_percent_amount: Optional[str]
     trail_profit_premium_trigger: Optional[str]
     trail_profit_premium_amount: Optional[str]
-    variables: list[str]  # TODO: check
-    close_short_strike_only: Literal["Yes", "No"]
-    sell_abandoned_long_strike: Literal["Yes", "No"]
+    variables: list[Optional[Variable]]
+    close_short_strike_only: bool
+    sell_abandoned_long_strike: bool
 
 
-class Adjustment(BaseModel):  # TODO: check
+class Adjustment(BaseModel):
     number: str
     status: str
     type: str
-    days_of_week: str
+    days_of_week: DayOfWeek
     days_to_expiration: int
-    time_of_day: str
-    minimum_position_delta: Optional[float]
-    maximum_position_delta: Optional[float]
-    minimum_position_profit_percent: Optional[float]
-    maximum_position_profit_percent: Optional[float]
-    minimum_underlying_percent_move_from_close: Optional[float]
-    maximum_underlying_percent_move_from_close: Optional[float]
-    variables: list[str]
+    time_of_day: time
+    minimum_position_delta: Optional[str]
+    maximum_position_delta: Optional[str]
+    minimum_position_profit_percent: Optional[str]
+    maximum_position_profit_percent: Optional[str]
+    minimum_underlying_percent_move_from_close: Optional[str]
+    maximum_underlying_percent_move_from_close: Optional[str]
+    variables: list[Optional[Variable]]
+
+    @field_validator('days_of_week', mode='before', check_fields=True)
+    def __convert_days_of_week(cls, value):
+        if isinstance(value, str):
+            return DayOfWeek(**{'days_of_week': value})
+        elif isinstance(value, dict):
+            return DayOfWeek(**value)
+        elif isinstance(value, DayOfWeek):
+            return value
+        else:
+            raise ValueError(f"Invalid days_of_week type: must be DayOfWeek or dict, got {type(value)}")
 
 
 class Notification(BaseModel):  # TODO: check
     number: str
     event: str
     type: str
-
-
-class Variable(BaseModel):  # TODO: check
-    number: str
-    name: str
-    value: str
-    bot_value_to_set: Optional[str]
-    free_text_value_to_set: Optional[str]
-    last_updated_at: str
 
 
 class BotResponse(BaseModel):
