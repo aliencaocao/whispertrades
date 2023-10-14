@@ -220,54 +220,54 @@ class EntryCondition(BaseModel):
     same_day_re_entry: Optional[Literal["Profit", "Loss"]]
     avoid_fomc: Optional[str]
     move_strike_selection_with_conflict: bool
-    variables: list[Optional[Variable]]  # TODO: check
-    call_short_strike_type: Optional[str]  # TODO: check
+    variables: list[Optional[Variable]]
+    call_short_strike_type: Optional[Literal["Delta", "Premium"]]
     call_short_strike_minimum_delta: Optional[float]
     call_short_strike_target_delta: Optional[float]
     call_short_strike_maximum_delta: Optional[float]
-    call_short_strike_minimum_premium: Optional[float]  # TODO: check
-    call_short_strike_target_premium: Optional[float]  # TODO: check
-    call_short_strike_maximum_premium: Optional[float]  # TODO: check
-    call_long_strike_type: Optional[str]  # TODO: check
+    call_short_strike_minimum_premium: Optional[str]
+    call_short_strike_target_premium: Optional[str]
+    call_short_strike_maximum_premium: Optional[str]
+    call_long_strike_type: Optional[Literal["Delta", "Premium"]]
     call_long_strike_minimum_delta: Optional[float]
     call_long_strike_target_delta: Optional[float]
     call_long_strike_maximum_delta: Optional[float]
-    call_long_strike_minimum_premium: Optional[float]  # TODO: check
-    call_long_strike_target_premium: Optional[float]  # TODO: check
-    call_long_strike_maximum_premium: Optional[float]  # TODO: check
-    call_spread_minimum_width_points: Optional[float]  # TODO: check
-    call_spread_target_width_points: Optional[float]  # TODO: check
-    call_spread_maximum_width_points: Optional[float]  # TODO: check
-    call_spread_minimum_width_percent: Optional[float]  # TODO: check
-    call_spread_target_width_percent: Optional[float]  # TODO: check
-    call_spread_maximum_width_percent: Optional[float]  # TODO: check
+    call_long_strike_minimum_premium: Optional[str]
+    call_long_strike_target_premium: Optional[str]
+    call_long_strike_maximum_premium: Optional[str]
+    call_spread_minimum_width_points: Optional[float]
+    call_spread_target_width_points: Optional[float]
+    call_spread_maximum_width_points: Optional[float]
+    call_spread_minimum_width_percent: Optional[str]
+    call_spread_target_width_percent: Optional[str]
+    call_spread_maximum_width_percent: Optional[str]
     call_spread_strike_target_delta: Optional[float]
-    call_spread_strike_target_premium: Optional[float]  # TODO: check
-    restrict_call_spread_width_by: Optional[str]  # TODO: check
+    call_spread_strike_target_premium: Optional[str]
+    restrict_call_spread_width_by: Optional[Literal["Points", "Percent"]]
     call_spread_smart_width: bool
-    put_short_strike_type: Optional[str]
+    put_short_strike_type: Optional[Literal["Delta", "Premium"]]
     put_short_strike_minimum_delta: Optional[float]
     put_short_strike_target_delta: Optional[float]
     put_short_strike_maximum_delta: Optional[float]
-    put_short_strike_minimum_premium: Optional[float]  # TODO: check
-    put_short_strike_target_premium: Optional[float]  # TODO: check
-    put_short_strike_maximum_premium: Optional[float]  # TODO: check
-    put_long_strike_type: Optional[str]  # TODO: check
+    put_short_strike_minimum_premium: Optional[str]
+    put_short_strike_target_premium: Optional[str]
+    put_short_strike_maximum_premium: Optional[str]
+    put_long_strike_type: Optional[Literal["Delta", "Premium"]]
     put_long_strike_minimum_delta: Optional[float]
     put_long_strike_target_delta: Optional[float]
     put_long_strike_maximum_delta: Optional[float]
-    put_long_strike_minimum_premium: Optional[float]  # TODO: check
-    put_long_strike_target_premium: Optional[float]  # TODO: check
-    put_long_strike_maximum_premium: Optional[float]  # TODO: check
+    put_long_strike_minimum_premium: Optional[str]
+    put_long_strike_target_premium: Optional[str]
+    put_long_strike_maximum_premium: Optional[str]
     put_spread_minimum_width_points: Optional[float]
     put_spread_target_width_points: Optional[float]
     put_spread_maximum_width_points: Optional[float]
-    put_spread_minimum_width_percent: Optional[float]
-    put_spread_target_width_percent: Optional[float]  # TODO: check
-    put_spread_maximum_width_percent: Optional[float]  # TODO: check
+    put_spread_minimum_width_percent: Optional[str]
+    put_spread_target_width_percent: Optional[str]
+    put_spread_maximum_width_percent: Optional[str]
     put_spread_strike_target_delta: Optional[float]
-    put_spread_strike_target_premium: Optional[float]  # TODO: check
-    restrict_put_spread_width_by: Optional[str]  # TODO: check
+    put_spread_strike_target_premium: Optional[str]
+    restrict_put_spread_width_by: Optional[Literal["Points", "Percent"]]
     put_spread_smart_width: bool
 
     @field_validator('days_of_week', mode='before', check_fields=True)
@@ -329,8 +329,18 @@ class Adjustment(BaseModel):
 
 class Notification(BaseModel):  # TODO: check
     number: str
-    event: str
-    type: str
+    event: Literal[
+    "Order Placed",
+    "Order Filled",
+    "Order Canceled",
+    "Position % In-the-Money",
+    "Position % Loss",
+    "Position % Profit",
+    "Position Days to Expiration",
+    "Position Delta (Loss)",
+    "Position Expired"
+    ]
+    type: Literal["Email"]
 
 
 class BotResponse(BaseModel):

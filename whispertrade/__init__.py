@@ -27,29 +27,29 @@ class WTClient:
         """
         :param token: API token obtained from WhisperTrade
         :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to.
-        :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/
+        :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
         """
         self.token = token
         self.endpoint = endpoint
         self.headers = {'Accept': 'application/json',
                         'Content-Type': 'application/json',
                         'Authorization': f'Bearer {self.token}'}
-        self._bots: list[Bot] = []
+        self._bots: dict[str, Bot] = {}
 
         if auto_init:
             self._get_bots(include_details=True)
 
     @property
-    def bots(self) -> list[Bot]:
+    def bots(self) -> dict[str, Bot]:
         """Returns a list of Bot objects that was cached by the previous call to get_bots(). To refresh, call get_bots() again. If get_bots() was never called, accessing this attribute will call get_bots() and return the result."""
         if not self._bots:
             self._get_bots(include_details=True)
         return self._bots
 
-    def _get_bots(self, bot_id: Union[int, str] = '', statuses: list = None, include_details: bool = False):
+    def _get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}
-        if isinstance(bot_id, int):
-            bot_id = str(bot_id)
+        if isinstance(bot_number, int):
+            bot_number = str(bot_number)
         valid_statuses = ["Enabled", "Disabled", "Disable on Close"]
         if statuses:
             for status in statuses:
@@ -58,19 +58,19 @@ class WTClient:
             payload['statuses'] = statuses
         if include_details:
             payload['include_details'] = include_details
-        response = requests.get(f"{self.endpoint}bots/{bot_id}", headers=self.headers, params=payload)
+        response = requests.get(f"{self.endpoint}bots/{bot_number}", headers=self.headers, params=payload)
         response = BaseResponse(**orjson.loads(response.text))
         if response.success:
-            self._bots.clear()
             for bot_data in response.data:
                 if bot_data['name'] == 'test':
                     print(bot_data)
                 bot = Bot(BotResponse(**bot_data))
-                self._bots.append(bot)
+                self._bots[bot.number] = bot
+            return self.bots
         else:
             raise APIError(response.message)
 
-    def get_bots(self, statuses: list = None, include_details: bool = False):
+    def get_bots(self, statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         """
         Get information of all bots
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
@@ -78,11 +78,12 @@ class WTClient:
         """
         return self._get_bots(statuses=statuses, include_details=include_details)
 
-    def get_bot(self, bot_id: Union[int, str], statuses: list = None, include_details: bool = True):
+    def get_bot(self, bot_number: Union[int, str], statuses: list = None, include_details: bool = True):
         """
-        Get information of a bot by ID
-        :param bot_id: ID of the bot, e.g. BYZ8UNMX8M
+        Get information of a bot by number
+        :param bot_number: e.g. BYZ8UNMX8M
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
         :param include_details: Optional, defaults to True.
         """
-        return self._get_bots(bot_id=bot_id, statuses=statuses, include_details=include_details)
+        self._get_bots(bot_number=bot_number, statuses=statuses, include_details=include_details)
+        return self.bots[bot_number]
