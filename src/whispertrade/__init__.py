@@ -9,6 +9,8 @@ from .bot import Bot, BotResponse
 from .common import APIError, BaseResponse
 from .order import Order, OrderResponse
 
+__version__ = '0.1.0'
+__author__ = 'Billy Cao'
 ENDPOINT = 'https://api.whispertrades.com/v1/'
 
 
