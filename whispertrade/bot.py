@@ -5,161 +5,10 @@ from pydantic import BaseModel, field_validator
 
 if TYPE_CHECKING:
     from . import WTClient
+from .order import Order
 from .common import APIError, BaseResponse
 
 import orjson
-
-sample = [
-    {
-        "number": "VCRPZ6ZNZZ",
-        "name": "test",
-        "broker_connection": {
-            "name": None,
-            "number": "HQUQUE4JIS",
-            "account_number": "YSO7QYGWXS",
-        },
-        "is_paper": True,
-        "status": "Disabled",
-        "can_enable": True,
-        "can_disable": False,
-        "symbol": "SPXW",
-        "type": "Put Credit Spread",
-        "notes": None,
-        "last_active_at": None,
-        "disabled_at": None,
-        "entry_condition": {
-            "allocation_type": "Leverage Amount",
-            "contract_quantity": None,
-            "percent_of_portfolio": None,
-            "leverage_amount": "5.0",
-            "entry_speed": "Normal",
-            "maximum_entries_per_day": 5,
-            "earliest_time_of_day": None,
-            "latest_time_of_day": None,
-            "days_of_week": "All",
-            "minutes_between_positions": 0,
-            "minimum_starting_premium": None,
-            "maximum_starting_premium": None,
-            "minimum_days_to_expiration": 1,
-            "target_days_to_expiration": 1,
-            "maximum_days_to_expiration": 3,
-            "minimum_underlying_percent_move_from_close": "5.00%",
-            "maximum_underlying_percent_move_from_close": "10.00%",
-            "same_day_re_entry": None,
-            "avoid_fomc": None,
-            "move_strike_selection_with_conflict": "No",
-            "variables": [
-                {
-                    "number": "MXCFKNY0BC",
-                    "name": "testvar",
-                    "condition": "Equal To",
-                    "value": "hi",
-                }
-            ],
-            "call_short_strike_type": None,
-            "call_short_strike_minimum_delta": None,
-            "call_short_strike_target_delta": None,
-            "call_short_strike_maximum_delta": None,
-            "call_short_strike_minimum_premium": None,
-            "call_short_strike_target_premium": None,
-            "call_short_strike_maximum_premium": None,
-            "call_long_strike_type": None,
-            "call_long_strike_minimum_delta": None,
-            "call_long_strike_target_delta": None,
-            "call_long_strike_maximum_delta": None,
-            "call_long_strike_minimum_premium": None,
-            "call_long_strike_target_premium": None,
-            "call_long_strike_maximum_premium": None,
-            "call_spread_minimum_width_points": None,
-            "call_spread_target_width_points": None,
-            "call_spread_maximum_width_points": None,
-            "call_spread_minimum_width_percent": None,
-            "call_spread_target_width_percent": None,
-            "call_spread_maximum_width_percent": None,
-            "call_spread_strike_target_delta": None,
-            "call_spread_strike_target_premium": None,
-            "restrict_call_spread_width_by": None,
-            "call_spread_smart_width": False,
-            "put_short_strike_type": "Delta",
-            "put_short_strike_minimum_delta": None,
-            "put_short_strike_target_delta": "2.2",
-            "put_short_strike_maximum_delta": None,
-            "put_short_strike_minimum_premium": None,
-            "put_short_strike_target_premium": None,
-            "put_short_strike_maximum_premium": None,
-            "put_long_strike_type": None,
-            "put_long_strike_minimum_delta": None,
-            "put_long_strike_target_delta": None,
-            "put_long_strike_maximum_delta": None,
-            "put_long_strike_minimum_premium": None,
-            "put_long_strike_target_premium": None,
-            "put_long_strike_maximum_premium": None,
-            "put_spread_minimum_width_points": None,
-            "put_spread_target_width_points": 300,
-            "put_spread_maximum_width_points": None,
-            "put_spread_minimum_width_percent": None,
-            "put_spread_target_width_percent": None,
-            "put_spread_maximum_width_percent": None,
-            "put_spread_strike_target_delta": None,
-            "put_spread_strike_target_premium": None,
-            "restrict_put_spread_width_by": None,
-            "put_spread_smart_width": True,
-        },
-        "exit_condition": {
-            "exit_speed": "Normal",
-            "profit_premium_value": "$5.00",
-            "profit_target_percent": None,
-            "stop_loss_percent": "10.00%",
-            "loss_premium_value": "$5.00",
-            "itm_percent_stop": "5.00%",
-            "delta_stop": "5.0",
-            "monitored_stop_sensitivity": "Normal",
-            "trail_profit_percent_trigger": "5.00%",
-            "trail_profit_percent_amount": "5.00%",
-            "trail_profit_premium_trigger": "$5.00",
-            "trail_profit_premium_amount": "$5.00",
-            "variables": [],
-            "close_short_strike_only": "No",
-            "sell_abandoned_long_strike": "No",
-        },
-        "adjustments": [
-            {
-                "number": "JU4ABN7RRA",
-                "status": "Enabled",
-                "type": "Close Position Early",
-                "days_of_week": "Monday, Wednesday, Thursday, Friday",
-                "days_to_expiration": 3,
-                "time_of_day": "21:33",
-                "minimum_position_delta": "4.0%",
-                "maximum_position_delta": "4.0%",
-                "minimum_position_profit_percent": "4.00%",
-                "maximum_position_profit_percent": "4.00%",
-                "minimum_underlying_percent_move_from_close": "4.00%",
-                "maximum_underlying_percent_move_from_close": "4.00%",
-                "variables": [
-                    {
-                        "number": "MXCFKNY0BC",
-                        "name": "testvar",
-                        "condition": "Less Than",
-                        "value": "444",
-                    }
-                ],
-            }
-        ],
-        "notifications": [],
-        "variables": [
-            {
-                "number": "MXCFKNY0BC",
-                "name": "testvar",
-                "value": None,
-                "bot_value_to_set": "Free Text",
-                "free_text_value_to_set": "hi",
-                "last_updated_at": "2023-10-14T02:39:04.000000Z",
-            }
-        ],
-    }
-
-]
 
 
 class BrokerConnection(BaseModel):
@@ -333,7 +182,7 @@ class Adjustment(BaseModel):
             raise ValueError(f"Invalid days_of_week type: must be DayOfWeek or dict, got {type(value)}")
 
 
-class Notification(BaseModel):  # TODO: check
+class Notification(BaseModel):
     number: str
     event: Literal[
         "Order Placed",
@@ -374,15 +223,11 @@ def toCamalCase(s: str) -> str:
 
 
 class Bot:
-    def __init__(self, data: BotResponse, client: WTClient):
+    def __init__(self, data: BotResponse, client: 'WTClient', auto_refresh: bool = True):
         self._BotResponse = data
         self.client = client
-        for key, value in data.model_dump().items():
-            if isinstance(value, dict):
-                value = globals()[toCamalCase(key)](**value)
-            setattr(self, key, value)
+        self.auto_refresh = auto_refresh
 
-        # attributes for IDE type hinting
         self.number: str = data.number
         self.name: str = data.name
         self.broker_connection: BrokerConnection = data.broker_connection
@@ -403,6 +248,8 @@ class Bot:
 
         self.endpoint = f'{self.client.endpoint}bots/{self.number}/'
 
+        self._orders: dict[str, Order] = {}
+
     def __repr__(self):
         return str(self._BotResponse)
 
@@ -419,8 +266,11 @@ class Bot:
             raise APIError(response.message)
 
     @property
-    def orders(self):
-        return
+    def orders(self) -> dict[str, Order]:
+        if not self._orders or self.auto_refresh:
+            orders = self.client.get_orders(bot=self)
+            self._orders.update(orders)
+        return self._orders
 
     @property
     def positions(self):
@@ -430,5 +280,5 @@ class Bot:
     def reports(self):
         return
 
-    def get_variable(self, number: str) -> Variable:
+    def variables(self):
         return
