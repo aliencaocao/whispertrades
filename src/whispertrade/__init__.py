@@ -106,13 +106,13 @@ class WTClient:
             bot_number = ''
         if status:
             status = status.upper()
-            if status not in ["WORKING", "FILLED", "CANCELED"]:  # TODO: check if EXPIRED is valid
+            if status not in ["WORKING", "FILLED", "CANCELED", "EXPIRED", "REJECTED"]:
                 raise ValueError(f"Invalid status: {status}. Valid status are WORKING, FILLED, CANCELED")
             payload['status'] = status
         if from_date:
-            payload['from_date'] = from_date
+            payload['from_date'] = from_date.strftime('%Y-%m-%d')
         if to_date:
-            payload['to_date'] = to_date
+            payload['to_date'] = to_date.strftime('%Y-%m-%d')
         if page is not None:
             if not isinstance(page, int):
                 raise TypeError(f"Invalid type for page, expected int, got {type(page)}")
@@ -149,7 +149,7 @@ class WTClient:
         """
         Get orders, optionally filter by bot, status, date, page.
         :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
-        :param status: Optional, filter by status, valid values are WORKING, FILLED, CANCELED. If empty, do not filter.
+        :param status: Optional, filter by status, valid values are WORKING, FILLED, CANCELED, EXPIRED, REJECTED. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
         :param to_date: Optional, filter by date. If empty, do not filter.
         :param page: Optional, defaults to None. If provided, will return orders on that page. If empty, return all pages. Each page is 100 orders.

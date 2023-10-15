@@ -47,9 +47,9 @@ class Fill(BaseModel):
 class OrderResponse(BaseModel):
     number: str
     broker_order_number: str
-    status: Literal["WORKING", "FILLED", "CANCELED", "EXPIRED"]
+    status: Literal["WORKING", "FILLED", "CANCELED", "EXPIRED", "REJECTED"]
     type: Literal["OPENING", "CLOSING"]
-    duration: Literal["GTC"]  # TODO: to check
+    duration: Literal["GTC", "DAY"]
     bot: BotForOrder
     is_paper: bool
     symbol: str
