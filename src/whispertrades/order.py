@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from . import WTClient
 
 
-class BotForOrder(BaseModel):
+class Bot(BaseModel):
     name: str
     number: str
 
@@ -50,7 +50,7 @@ class OrderResponse(BaseModel):
     status: Literal["WORKING", "FILLED", "CANCELED", "EXPIRED", "REJECTED"]
     type: Literal["OPENING", "CLOSING"]
     duration: Literal["GTC", "DAY"]
-    bot: BotForOrder
+    bot: Bot
     is_paper: bool
     symbol: str
     original_quantity: int
@@ -92,3 +92,6 @@ class Order:
         self.legs = data.legs
         self.submissions = data.submissions
         self.fills = data.fills
+
+    def __repr__(self) -> str:
+        return str(self._OrderResponse)

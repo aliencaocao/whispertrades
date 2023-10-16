@@ -8,6 +8,7 @@ from requests_ratelimiter import LimiterAdapter
 from .bot import Bot, BotResponse
 from .common import APIError, BaseResponse
 from .order import Order, OrderResponse
+from .variable import Variable, VariableResponse
 
 __version__ = '0.1.0'
 __author__ = 'Billy Cao'
@@ -38,10 +39,12 @@ class WTClient:
                         'Authorization': f'Bearer {self.token}'}
         self._bots: dict[str, Bot] = {}
         self._orders: dict[str, Order] = {}
+        self._variables: dict[str, Variable] = {}
 
         if auto_init:
             self.__get_bots(include_details=True)
             self.__get_orders()
+            self.__get_variables()
 
     def __get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}
@@ -126,7 +129,6 @@ class WTClient:
                     order = Order(OrderResponse(**order_data), self)
                     self._orders[order.number] = order
                     if order.bot.number not in self._bots:
-                        print(order.bot.number)
                         self.get_bot(order.bot.number, include_details=False)
                     self._bots[order.bot.number]._orders[order.number] = order
                 return response.data
@@ -156,12 +158,13 @@ class WTClient:
         """
         return self.__get_orders(bot=bot, status=status, from_date=from_date, to_date=to_date, page=page)
 
-    def get_order(self, number: str):
+    def get_order(self, number: str) -> Order:
         """
         Get order by number
         :param number: e.g. GZH7QT03FD
         """
-        return self.__get_orders(number=number)
+        self.__get_orders(number=number)
+        return self.orders[number]
 
     @property
     def orders(self) -> dict[str, Order]:
@@ -169,3 +172,41 @@ class WTClient:
         if not self._orders or self.auto_refresh:
             self.__get_orders()
         return self._orders
+
+    def __get_variables(self, number: str = '') -> dict[str, Variable]:
+        response = self.session.get(f"{self.endpoint}bots/variables/{number}", headers=self.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if response.success:
+            if isinstance(response.data, dict):
+                response.data = [response.data]
+            for variable_data in response.data:
+                variable = Variable(VariableResponse(**variable_data), self, self.auto_refresh)
+                self._variables[variable.number] = variable
+            return self._variables
+        else:
+            raise APIError(response.message)
+
+    def get_variables(self, ) -> dict[str, Variable]:
+        """
+        Get all variables in this account
+        """
+        return self.__get_variables()
+
+    def get_variable(self, number: str) -> Variable:
+        """
+        Get variable by number
+        :param number: e.g. GZH7QT03FD
+        """
+        self.__get_variables(number=number)
+        return self.variables[number]
+
+    @property
+    def variables(self) -> dict[str, Variable]:
+        """Returns a list of Variable objects that was cached by the previous call to get_variables(). To refresh, call get_variables() again (not needed if auto_refresh was set to True). If get_variables() was never called, accessing this attribute will call get_variables() and return the result."""
+        if not self._variables or self.auto_refresh:
+            self.__get_variables()
+        return self._variables
+
+    def __repr__(self):
+        token_redacted = self.token[:4] + '...' + self.token[-4:]
+        return f'<WTClient token={token_redacted} auto_refresh={self.auto_refresh} endpoint={self.endpoint}>'

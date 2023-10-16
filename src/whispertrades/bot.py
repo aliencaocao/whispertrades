@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from . import WTClient
 from .order import Order
 from .common import APIError, BaseResponse
+from .variable import BaseVariable
 
 import orjson
 
@@ -29,10 +30,7 @@ class DayOfWeek(BaseModel):
         return days_of_week
 
 
-class Variable(BaseModel):
-    number: str
-    name: str
-    value: Optional[str]
+class BotVariable(BaseVariable):
     condition: Literal["Contains", "Equal To", "Not Equal To", "Less Than", "Greater Than"] = None
     bot_value_to_set: Optional[Literal[
         "Free Text",
@@ -50,8 +48,6 @@ class Variable(BaseModel):
         "Bot Last Closed Position Today Profit $",
         "Bot Profit Realized Today $"
     ]] = None
-    free_text_value_to_set: Optional[str] = None
-    last_updated_at: Optional[datetime] = None
 
 
 class EntryCondition(BaseModel):
@@ -75,7 +71,7 @@ class EntryCondition(BaseModel):
     same_day_re_entry: Optional[Literal["Profit", "Loss"]]
     avoid_fomc: Optional[str]
     move_strike_selection_with_conflict: bool
-    variables: list[Optional[Variable]]
+    variables: list[Optional[BotVariable]]
     call_short_strike_type: Optional[Literal["Delta", "Premium"]]
     call_short_strike_minimum_delta: Optional[float]
     call_short_strike_target_delta: Optional[float]
@@ -150,7 +146,7 @@ class ExitCondition(BaseModel):
     trail_profit_percent_amount: Optional[str]
     trail_profit_premium_trigger: Optional[str]
     trail_profit_premium_amount: Optional[str]
-    variables: list[Optional[Variable]]
+    variables: list[Optional[BotVariable]]
     close_short_strike_only: bool
     sell_abandoned_long_strike: bool
 
@@ -168,7 +164,7 @@ class Adjustment(BaseModel):
     maximum_position_profit_percent: Optional[str]
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
-    variables: list[Optional[Variable]]
+    variables: list[Optional[BotVariable]]
 
     @field_validator('days_of_week', mode='before', check_fields=True)
     def __convert_days_of_week(cls, value):
@@ -215,7 +211,7 @@ class BotResponse(BaseModel):
     exit_condition: ExitCondition = None
     adjustments: list[Optional[Adjustment]] = None
     notifications: list[Optional[Notification]] = None
-    variables: list[Optional[Variable]] = None
+    variables: list[Optional[BotVariable]] = None
 
 
 def toCamalCase(s: str) -> str:
@@ -244,14 +240,14 @@ class Bot:
         self.exit_condition: ExitCondition = data.exit_condition
         self.adjustments: list[Optional[Adjustment]] = data.adjustments
         self.notifications: list[Optional[Notification]] = data.notifications
-        self.variables: list[Optional[Variable]] = data.variables
+        self.variables: list[Optional[BotVariable]] = data.variables
 
         self.endpoint = f'{self.client.endpoint}bots/{self.number}/'
 
         self._orders: dict[str, Order] = {}
 
     def __repr__(self):
-        return str(self._BotResponse)
+        return f'<Bot {self.number} - {self.name}>'
 
     def enable(self):
         response = requests.put(self.endpoint + 'enable', headers=self.client.headers)
@@ -278,7 +274,4 @@ class Bot:
 
     @property
     def reports(self):
-        return
-
-    def variables(self):
         return
