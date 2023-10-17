@@ -145,7 +145,7 @@ class WTClient:
                 raise APIError(response.message)
 
         r = request(payload)
-        if page is None and len(r) < 100:  # get all pages
+        if page is None and len(r) == 100:  # get all pages
             complete = False
             payload['page'] = 2
             while not complete:
@@ -260,7 +260,7 @@ class WTClient:
                 raise APIError(response.message)
 
         r = request(payload)
-        if page is None and len(r) < 100:  # get all pages
+        if page is None and len(r) == 100:  # page=None means default to 1st page, and if first page gives 100 result, there may be more, so try get all pages
             complete = False
             payload['page'] = 2
             while not complete:
