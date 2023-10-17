@@ -41,7 +41,7 @@ class Variable:
         self.bot = data.bot
         self.conditions = data.conditions
 
-    def update(self, name: str = None, value: str = None) -> str:
+    def edit(self, name: str = None, value: str = None) -> str:
         if not name or value is None:
             raise ValueError('Either name or value are required. Name cannot be empty string.')
         if self.bot:
@@ -60,4 +60,11 @@ class Variable:
             raise APIError(response.message)
 
     def __repr__(self):
+        if self.auto_refresh:
+            self.client.get_variable(self.number)
         return str(self._VariableResponse)
+
+    def __getattribute__(self, name):
+        if not name.endswith('Response') and name not in ['number', 'bot'] and name in self._VariableResponse.model_fields and self.auto_refresh:
+            self.client.get_variable(self.number)
+        return super().__getattribute__(name)

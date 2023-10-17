@@ -5,11 +5,7 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from . import WTClient
-
-
-class Bot(BaseModel):
-    name: str
-    number: str
+from .bot import BasicBot as Bot
 
 
 class Leg(BaseModel):
@@ -68,9 +64,10 @@ class OrderResponse(BaseModel):
 
 
 class Order:
-    def __init__(self, data: OrderResponse, client: 'WTClient'):
+    def __init__(self, data: OrderResponse, client: 'WTClient', auto_refresh: bool):
         self._OrderResponse = data
         self.client = client
+        self.auto_refresh = auto_refresh
 
         self.number = data.number
         self.broker_order_number = data.broker_order_number
@@ -94,4 +91,11 @@ class Order:
         self.fills = data.fills
 
     def __repr__(self) -> str:
+        if self.auto_refresh:
+            self.client.get_order(self.number)
         return str(self._OrderResponse)
+
+    def __getattribute__(self, name):
+        if not name.endswith('Response') and name not in ['number', 'broker_order_number', 'bot', 'is_paper'] and name in self._OrderResponse.model_fields and self.auto_refresh:
+            self.client.get_order(self.number)
+        return super().__getattribute__(name)

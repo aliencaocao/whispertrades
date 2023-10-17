@@ -5,7 +5,8 @@ from pydantic import BaseModel, field_validator
 
 if TYPE_CHECKING:
     from . import WTClient
-from .order import Order
+    from .order import Order
+    from .position import Position
 from .common import APIError, BaseResponse
 from .variable import BaseVariable
 
@@ -194,9 +195,12 @@ class Notification(BaseModel):
     type: Literal["Email"]
 
 
-class BotResponse(BaseModel):
-    number: str
+class BasicBot(BaseModel):
     name: str
+    number: str
+
+
+class BotResponse(BasicBot):
     broker_connection: BrokerConnection
     is_paper: bool
     status: Literal["Enabled", "Disabled", "Disable on Close"]
@@ -244,9 +248,12 @@ class Bot:
 
         self.endpoint = f'{self.client.endpoint}bots/{self.number}/'
 
-        self._orders: dict[str, Order] = {}
+        self._orders: dict[str, 'Order'] = {}
+        self._positions: dict[str, 'Position'] = {}
 
     def __repr__(self):
+        if self.auto_refresh:
+            self.client.get_bot(self.number)
         return f'<Bot {self.number} - {self.name}>'
 
     def enable(self):
@@ -262,7 +269,7 @@ class Bot:
             raise APIError(response.message)
 
     @property
-    def orders(self) -> dict[str, Order]:
+    def orders(self) -> dict[str, 'Order']:
         if not self._orders or self.auto_refresh:
             orders = self.client.get_orders(bot=self)
             self._orders.update(orders)
@@ -270,7 +277,10 @@ class Bot:
 
     @property
     def positions(self):
-        return
+        if not self._positions or self.auto_refresh:
+            positions = self.client.get_positions(bot=self)
+            self._positions.update(positions)
+        return self._positions
 
     @property
     def reports(self):

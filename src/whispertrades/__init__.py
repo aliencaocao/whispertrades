@@ -8,6 +8,7 @@ from requests_ratelimiter import LimiterAdapter
 from .bot import Bot, BotResponse
 from .common import APIError, BaseResponse
 from .order import Order, OrderResponse
+from .position import Position, PositionResponse
 from .variable import Variable, VariableResponse
 
 __version__ = '0.1.0'
@@ -25,7 +26,7 @@ class WTClient:
         """
         :param token: API token obtained from WhisperTrade
         :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
-        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access. This can be slow. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually.
+        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access. This can be slow. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
         :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
         :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
         """
@@ -40,11 +41,13 @@ class WTClient:
         self._bots: dict[str, Bot] = {}
         self._orders: dict[str, Order] = {}
         self._variables: dict[str, Variable] = {}
+        self._positions: dict[str, Position] = {}
 
         if auto_init:
             self.__get_bots(include_details=True)
             self.__get_orders()
             self.__get_variables()
+            self.__get_positions()
 
     def __get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}
@@ -67,7 +70,8 @@ class WTClient:
                 bot = Bot(BotResponse(**bot_data), self, self.auto_refresh)
                 if bot.number in self._bots:
                     self._bots[bot.number].__dict__.update(bot.__dict__)  # copy the already cached data
-                self._bots[bot.number] = bot
+                else:
+                    self._bots[bot.number] = bot
             return self._bots
         else:
             raise APIError(response.message)
@@ -87,7 +91,7 @@ class WTClient:
         :param include_details: Optional, defaults to True.
         """
         self.__get_bots(bot_number=bot_number, include_details=include_details)
-        return self.bots[bot_number]
+        return self._bots[bot_number]
 
     @property
     def bots(self) -> dict[str, Bot]:
@@ -110,7 +114,7 @@ class WTClient:
         if status:
             status = status.upper()
             if status not in ["WORKING", "FILLED", "CANCELED", "EXPIRED", "REJECTED"]:
-                raise ValueError(f"Invalid status: {status}. Valid status are WORKING, FILLED, CANCELED")
+                raise ValueError(f"Invalid status: {status}. Valid statuses are WORKING, FILLED, CANCELED, EXPIRED, REJECTED")
             payload['status'] = status
         if from_date:
             payload['from_date'] = from_date.strftime('%Y-%m-%d')
@@ -125,9 +129,14 @@ class WTClient:
             response = self.session.get(f"{self.endpoint}bots/{bot_number}orders/{number}", headers=self.headers, params=payload)
             response = BaseResponse(**orjson.loads(response.text))
             if response.success:
+                if isinstance(response.data, dict):
+                    response.data = [response.data]
                 for order_data in response.data:
-                    order = Order(OrderResponse(**order_data), self)
-                    self._orders[order.number] = order
+                    order = Order(OrderResponse(**order_data), self, self.auto_refresh)
+                    if order.number in self._orders:
+                        self._orders[order.number].__dict__.update(order.__dict__)
+                    else:
+                        self._orders[order.number] = order
                     if order.bot.number not in self._bots:
                         self.get_bot(order.bot.number, include_details=False)
                     self._bots[order.bot.number]._orders[order.number] = order
@@ -154,7 +163,7 @@ class WTClient:
         :param status: Optional, filter by status, valid values are WORKING, FILLED, CANCELED, EXPIRED, REJECTED. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
         :param to_date: Optional, filter by date. If empty, do not filter.
-        :param page: Optional, defaults to None. If provided, will return orders on that page. If empty, return all pages. Each page is 100 orders.
+        :param page: Optional, defaults to None. If provided, will return orders on that page. If empty, return all pages. Each page is 100 orders. Sorted from newest to oldest.
         """
         return self.__get_orders(bot=bot, status=status, from_date=from_date, to_date=to_date, page=page)
 
@@ -164,7 +173,7 @@ class WTClient:
         :param number: e.g. GZH7QT03FD
         """
         self.__get_orders(number=number)
-        return self.orders[number]
+        return self._orders[number]
 
     @property
     def orders(self) -> dict[str, Order]:
@@ -181,12 +190,15 @@ class WTClient:
                 response.data = [response.data]
             for variable_data in response.data:
                 variable = Variable(VariableResponse(**variable_data), self, self.auto_refresh)
-                self._variables[variable.number] = variable
+                if variable.number in self._variables:
+                    self._variables[variable.number].__dict__.update(variable.__dict__)
+                else:
+                    self._variables[variable.number] = variable
             return self._variables
         else:
             raise APIError(response.message)
 
-    def get_variables(self, ) -> dict[str, Variable]:
+    def get_variables(self) -> dict[str, Variable]:
         """
         Get all variables in this account
         """
@@ -198,7 +210,7 @@ class WTClient:
         :param number: e.g. GZH7QT03FD
         """
         self.__get_variables(number=number)
-        return self.variables[number]
+        return self._variables[number]
 
     @property
     def variables(self) -> dict[str, Variable]:
@@ -206,6 +218,84 @@ class WTClient:
         if not self._variables or self.auto_refresh:
             self.__get_variables()
         return self._variables
+
+    def __get_positions(self, number: str = '', bot: Union[Bot, str] = None, status: Literal["OPEN", "CLOSE"] = None, from_date: date = None, to_date: date = None, page: int = None) -> dict[str, Position]:
+        payload = {}
+        if bot:
+            if isinstance(bot, Bot):
+                bot_number = bot.number + '/'
+            elif isinstance(bot, str):
+                bot_number = str(bot) + '/'
+            else:
+                raise TypeError(f"Invalid type for bot, expected Bot or str, got {type(bot)}")
+            payload['bot'] = bot_number
+        if status:
+            status = status.upper()
+            if status not in ["OPEN", "CLOSE"]:
+                raise ValueError(f"Invalid status: {status}. Valid statuses are OPEN and CLOSE.")
+            payload['status'] = status
+        if from_date:
+            payload['from_date'] = from_date.strftime('%Y-%m-%d')
+        if to_date:
+            payload['to_date'] = to_date.strftime('%Y-%m-%d')
+        if page is not None:
+            if not isinstance(page, int):
+                raise TypeError(f"Invalid type for page, expected int, got {type(page)}")
+            payload['page'] = max(1, page)
+
+        def request(payload):
+            response = self.session.get(f"{self.endpoint}bots/positions/{number}", headers=self.headers, params=payload)
+            response = BaseResponse(**orjson.loads(response.text))
+            if response.success:
+                if isinstance(response.data, dict):
+                    response.data = [response.data]
+                for position_data in response.data:
+                    position = Position(PositionResponse(**position_data), self, self.auto_refresh)
+                    self._positions[position.number] = position
+                    if position.bot.number not in self._bots:
+                        self.get_bot(position.bot.number, include_details=False)
+                    self._bots[position.bot.number]._positions[position.number] = position
+                return response.data
+            else:
+                raise APIError(response.message)
+
+        r = request(payload)
+        if page is None and len(r) < 100:  # get all pages
+            complete = False
+            payload['page'] = 2
+            while not complete:
+                r = request(payload)
+                if len(r) < 100:
+                    complete = True
+                else:
+                    payload['page'] += 1
+        return self._positions
+
+    def get_positions(self, bot: Union[Bot, str] = None, status: Literal["OPEN", "CLOSE"] = None, from_date: date = None, to_date: date = None, page: int = None) -> dict[str, Position]:
+        """
+        Get positions, optionally filter by bot, status, date, page.
+        :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
+        :param status: Optional, filter by status, valid values are OPEN and CLOSE. If empty, do not filter.
+        :param from_date: Optional, filter by date. If empty, do not filter.
+        :param to_date: Optional, filter by date. If empty, do not filter.
+        :param page: Optional, defaults to None. If provided, will return positions on that page. If empty, return all pages. Each page is 100 orders. Sorted from newest to oldest.
+        """
+        return self.__get_positions(bot=bot, status=status, from_date=from_date, to_date=to_date, page=page)
+
+    def get_position(self, number: str) -> Position:
+        """
+        Get position by number
+        :param number: e.g. GZH7QT03FD
+        """
+        self.__get_positions(number=number)
+        return self._positions[number]
+
+    @property
+    def positions(self) -> dict[str, Position]:
+        """Returns a list of Position objects that was cached by the previous call to get_positions(). To refresh, call get_positions() again (not needed if auto_refresh was set to True). If get_positions() was never called, accessing this attribute will call get_positions() and return the result."""
+        if not self._positions or self.auto_refresh:
+            self.__get_positions()
+        return self._positions
 
     def __repr__(self):
         token_redacted = self.token[:4] + '...' + self.token[-4:]
