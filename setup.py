@@ -17,11 +17,16 @@ setup(
     ],
     python_requires='>=3.8',
     classifiers=[
-        'License :: OSI Approved :: MIT License',
+        'License :: Creative Commons Attribution 4.0 International Public License',
+        'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Topic :: Office/Business :: Financial :: Investment',
+        'Topic :: Software Development :: Libraries :: Application Frameworks'
     ],
 )
