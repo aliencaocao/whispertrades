@@ -93,7 +93,7 @@ class Order:
     def __repr__(self) -> str:
         if self.auto_refresh:
             self.client.get_order(self.number)
-        return str(self._OrderResponse)
+        return f'<Order {self._OrderResponse}>'
 
     def __getattribute__(self, name):
         if not name.endswith('Response') and name not in ['number', 'broker_order_number', 'bot', 'is_paper'] and name in self._OrderResponse.model_fields and self.auto_refresh:

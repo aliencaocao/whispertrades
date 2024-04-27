@@ -134,7 +134,7 @@ class Position:
     def __repr__(self) -> str:
         if self.auto_refresh:
             self.client.get_position(self.number)
-        return str(self._PositionResponse)
+        return f'<Position {self._PositionResponse}>'
 
     def __getattribute__(self, name):
         if not name.endswith('Response') and name not in ['number', 'broker_order_number', 'bot', 'is_paper'] and name in self._PositionResponse.model_fields and self.auto_refresh:

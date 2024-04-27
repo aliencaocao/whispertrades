@@ -76,7 +76,7 @@ class Variable:
     def __repr__(self):
         if self.auto_refresh:
             self.client.get_variable(self.number)
-        return str(self._VariableResponse)
+        return f'<Variable {self._VariableResponse}>'
 
     def __getattribute__(self, name):
         if not name.endswith('Response') and name not in ['number', 'bot'] and name in self._VariableResponse.model_fields and self.auto_refresh:

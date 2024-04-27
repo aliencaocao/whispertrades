@@ -6,9 +6,10 @@ from requests import Session
 from requests_ratelimiter import LimiterAdapter
 
 from .bot import Bot, BotResponse
-from .common import APIError, BaseResponse
+from .common import APIError, BaseResponse, UpdatingDict
 from .order import Order, OrderResponse
 from .position import Position, PositionResponse
+from .report import Report, ReportResponse
 from .variable import Variable, VariableResponse
 
 __version__ = '0.1.0'
@@ -42,12 +43,14 @@ class WTClient:
         self._orders: dict[str, Order] = {}
         self._variables: dict[str, Variable] = {}
         self._positions: dict[str, Position] = {}
+        self._reports: UpdatingDict[str, Report] = UpdatingDict(update_fn=self.__get_reports_raw if self.auto_refresh else None)
 
         if auto_init:
             self.__get_bots(include_details=True)
             self.__get_orders()
             self.__get_variables()
             self.__get_positions()
+            self.__get_reports()
 
     def __get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}
@@ -309,6 +312,54 @@ class WTClient:
         if not self._positions or self.auto_refresh:
             self.__get_positions()
         return self._positions
+
+    def __get_reports_raw(self, number: str = '', return_raw: bool = False) -> Report:
+        if not number and not return_raw:
+            raise ValueError("Report number is required if return_raw is False.")
+        response = self.session.get(f"{self.endpoint}bots/reports/{number}", headers=self.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        report_data = response.data
+        # print(report_data)  # for debugging
+        if response.success:
+            return report_data if return_raw else Report(ReportResponse(**report_data), self, self.auto_refresh)
+        else:
+            raise APIError(response.message)
+
+    def __get_reports(self, number: str = ''):
+        response_data = self.__get_reports_raw(number=number, return_raw=True)
+        if isinstance(response_data, dict):
+            response_data = [response_data]
+        for report_data in response_data:
+            report = Report(ReportResponse(**report_data), self, self.auto_refresh)
+            self._reports[report.number] = report
+        return self._reports
+
+    def get_reports(self, detailed: bool = False) -> dict[str, Report]:
+        """
+        Get all reports in this account. Note that this will NOT return detailed return data for each report.
+        Auth Required: Read Reports
+        :param detailed: Optional, defaults to False. If True, will return detailed return data for each report. This can be very slow. It is recommended to use get_report() to get detailed data for a specific report if you do not need all of them at once.
+        """
+        self.__get_reports()
+        if detailed:
+            for report in self._reports.values():
+                self.__get_reports(number=report.number)
+        return self._reports
+
+    def get_report(self, number: str) -> Report:
+        """
+        Get report by number. Note that this will return detailed return data.
+        Auth Required: Read Reports
+        :param number: e.g. GZH7QT03FD
+        """
+        if not self.auto_refresh: self.__get_reports(number=number)  # if auto refresh is enabled, accessing the key below already refreshes so do not request again
+        return self._reports[number]
+
+    @property
+    def reports(self):  # TODO: accessing key from here dont trigger refresh for that key
+        if not self._reports:  # auto refresh is handled in UpdatingDict during client init
+            self.__get_reports()
+        return self._reports
 
     def __repr__(self):
         token_redacted = self.token[:4] + '...' + self.token[-4:]

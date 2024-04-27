@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from . import WTClient
     from .order import Order
     from .position import Position
+    from .report import Report
 from .common import APIError, BaseResponse
 from .variable import BaseVariable
 
@@ -359,5 +360,5 @@ class Bot:
         return self._positions
 
     @property
-    def reports(self):
-        return
+    def reports(self) -> list['Report']:
+        return [r for r in self.client.reports.values() if self.number in (b.number for b in r.bots)]
