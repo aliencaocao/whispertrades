@@ -19,7 +19,7 @@ class BrokerConnection(BaseModel):
     account_number: str
 
 
-class DayOfWeek(BaseModel):
+class DaysOfWeek(BaseModel):
     days_of_week: str
 
     @field_validator('days_of_week')
@@ -39,6 +39,7 @@ class BotVariable(BaseVariable):
         "Bot Positions Entered Today Count",
         "Bot Positions Exited Today Count",
         "Bot Current Position Delta",
+        "Bot Current Position ITM %",
         "Bot Current Position MID Price",
         "Bot Current Position Minutes in Trade",
         "Bot Current Position Days in Trade",
@@ -52,15 +53,22 @@ class BotVariable(BaseVariable):
 
 
 class EntryCondition(BaseModel):
+    frequency: Literal["Sequential", "Daily", "Weekly"]
     allocation_type: Literal["Leverage Amount", "Contract Quantity", "Percent of Portfolio"]
     contract_quantity: Optional[int]
     percent_of_portfolio: Optional[float]
     leverage_amount: Optional[float]
+    long_call_ratio_quantity: Optional[int]
+    short_call_ratio_quantity: Optional[int]
+    long_put_ratio_quantity: Optional[int]
+    short_put_ratio_quantity: Optional[int]
     entry_speed: Literal["Patient", "Normal", "Aggressive"]
+    maximum_concurrent_positions: Optional[int]
     maximum_entries_per_day: int
     earliest_time_of_day: Optional[time]
     latest_time_of_day: Optional[time]
-    days_of_week: DayOfWeek
+    day_of_week: Optional[Literal["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]]
+    days_of_week: Optional[DaysOfWeek]
     minutes_between_positions: int
     minimum_starting_premium: Optional[str]
     maximum_starting_premium: Optional[str]
@@ -80,6 +88,9 @@ class EntryCondition(BaseModel):
     call_short_strike_minimum_premium: Optional[str]
     call_short_strike_target_premium: Optional[str]
     call_short_strike_maximum_premium: Optional[str]
+    call_short_strike_percent_otm_minimum: Optional[str]
+    call_short_strike_target_percent_otm: Optional[str]
+    call_short_strike_percent_otm_maximum: Optional[str]
     call_long_strike_type: Optional[Literal["Delta", "Premium"]]
     call_long_strike_minimum_delta: Optional[float]
     call_long_strike_target_delta: Optional[float]
@@ -87,6 +98,9 @@ class EntryCondition(BaseModel):
     call_long_strike_minimum_premium: Optional[str]
     call_long_strike_target_premium: Optional[str]
     call_long_strike_maximum_premium: Optional[str]
+    call_long_strike_percent_otm_minimum: Optional[str]
+    call_long_strike_target_percent_otm: Optional[str]
+    call_long_strike_percent_otm_maximum: Optional[str]
     call_spread_minimum_width_points: Optional[float]
     call_spread_target_width_points: Optional[float]
     call_spread_maximum_width_points: Optional[float]
@@ -97,20 +111,26 @@ class EntryCondition(BaseModel):
     call_spread_strike_target_premium: Optional[str]
     restrict_call_spread_width_by: Optional[Literal["Points", "Percent"]]
     call_spread_smart_width: bool
-    put_short_strike_type: Optional[Literal["Delta", "Premium"]]
+    put_short_strike_type: Optional[Literal["Delta", "Premium", "% OTM"]]
     put_short_strike_minimum_delta: Optional[float]
     put_short_strike_target_delta: Optional[float]
     put_short_strike_maximum_delta: Optional[float]
     put_short_strike_minimum_premium: Optional[str]
     put_short_strike_target_premium: Optional[str]
     put_short_strike_maximum_premium: Optional[str]
-    put_long_strike_type: Optional[Literal["Delta", "Premium"]]
+    put_short_strike_percent_otm_minimum: Optional[str]
+    put_short_strike_target_percent_otm: Optional[str]
+    put_short_strike_percent_otm_maximum: Optional[str]
+    put_long_strike_type: Optional[Literal["Delta", "Premium", "% OTM"]]
     put_long_strike_minimum_delta: Optional[float]
     put_long_strike_target_delta: Optional[float]
     put_long_strike_maximum_delta: Optional[float]
     put_long_strike_minimum_premium: Optional[str]
     put_long_strike_target_premium: Optional[str]
     put_long_strike_maximum_premium: Optional[str]
+    put_long_strike_percent_otm_minimum: Optional[str]
+    put_long_strike_target_percent_otm: Optional[str]
+    put_long_strike_percent_otm_maximum: Optional[str]
     put_spread_minimum_width_points: Optional[float]
     put_spread_target_width_points: Optional[float]
     put_spread_maximum_width_points: Optional[float]
@@ -125,13 +145,13 @@ class EntryCondition(BaseModel):
     @field_validator('days_of_week', mode='before', check_fields=True)
     def __convert_days_of_week(cls, value):
         if isinstance(value, str):
-            return DayOfWeek(**{'days_of_week': value})
+            return DaysOfWeek(**{'days_of_week': value})
         elif isinstance(value, dict):
-            return DayOfWeek(**value)
-        elif isinstance(value, DayOfWeek):
+            return DaysOfWeek(**value)
+        elif isinstance(value, DaysOfWeek):
             return value
         else:
-            raise ValueError(f"Invalid days_of_week type: must be DayOfWeek or dict, got {type(value)}")
+            raise ValueError(f"Invalid days_of_week type: must be DaysOfWeek or dict, got {type(value)}")
 
 
 class ExitCondition(BaseModel):
@@ -141,6 +161,7 @@ class ExitCondition(BaseModel):
     stop_loss_percent: Optional[str]
     loss_premium_value: Optional[str]
     itm_percent_stop: Optional[str]
+    otm_percent_stop: Optional[str]
     delta_stop: Optional[float]
     monitored_stop_sensitivity: Literal["Patient", "Normal", "Aggressive"]
     trail_profit_percent_trigger: Optional[str]
@@ -152,17 +173,35 @@ class ExitCondition(BaseModel):
     sell_abandoned_long_strike: bool
 
 
+class AdjustmentTime(BaseModel):
+    start_time: time
+    end_time: Optional[time]
+
+    @classmethod
+    def from_string(cls, time_range_str: str) -> 'AdjustmentTime':
+        splt_time_str = time_range_str.split(' to ')
+        start_str = splt_time_str[0]
+        start_time = datetime.strptime(start_str, '%H:%M').time()
+        end_time = None
+        if len(splt_time_str) == 2:
+            end_str = splt_time_str[1]
+            end_time = datetime.strptime(end_str, '%H:%M').time()
+        return cls(**{'start_time': start_time, 'end_time': end_time})
+
+
 class Adjustment(BaseModel):
     number: str
     status: str
     type: str
-    days_of_week: DayOfWeek
+    days_of_week: DaysOfWeek
     days_to_expiration: int
-    time_of_day: time
+    time_of_day: AdjustmentTime
     minimum_position_delta: Optional[str]
     maximum_position_delta: Optional[str]
     minimum_position_profit_percent: Optional[str]
     maximum_position_profit_percent: Optional[str]
+    minimum_position_otm_percent: Optional[str]
+    maximum_position_otm_percent: Optional[str]
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
     variables: list[Optional[BotVariable]]
@@ -170,13 +209,22 @@ class Adjustment(BaseModel):
     @field_validator('days_of_week', mode='before', check_fields=True)
     def __convert_days_of_week(cls, value):
         if isinstance(value, str):
-            return DayOfWeek(**{'days_of_week': value})
+            return DaysOfWeek(**{'days_of_week': value})
         elif isinstance(value, dict):
-            return DayOfWeek(**value)
-        elif isinstance(value, DayOfWeek):
+            return DaysOfWeek(**value)
+        elif isinstance(value, DaysOfWeek):
             return value
         else:
-            raise ValueError(f"Invalid days_of_week type: must be DayOfWeek or dict, got {type(value)}")
+            raise ValueError(f"Invalid days_of_week type: must be DaysOfWeek or dict, got {type(value)}")
+
+    @field_validator('time_of_day', mode='before', check_fields=True)
+    def __convert_time_of_day(cls, value):
+        if isinstance(value, str):
+            return AdjustmentTime.from_string(value)
+        elif isinstance(value, AdjustmentTime):
+            return value
+        else:
+            raise ValueError(f"Invalid time_of_day type: must be AdjustmentTime or str, got {type(value)}")
 
 
 class Notification(BaseModel):

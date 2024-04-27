@@ -32,7 +32,6 @@ class PositionLeg(BaseModel):
     current_ask: Optional[float]
     current_profit: Optional[float]
     current_delta: Optional[float]
-    quotes_updated_at: Optional[datetime]
     profit_dollars: Optional[float]
     delta_at_entry: float
     delta_at_exit: Optional[float]
@@ -66,7 +65,6 @@ class PositionResponse(BaseModel):
     current_ask: Optional[float]
     current_profit: Optional[float]
     current_delta: Optional[float]
-    quotes_updated_at: Optional[datetime]
     entry_value: float
     exit_value: Optional[float]
     max_risk: float

@@ -62,6 +62,7 @@ class WTClient:
         if include_details:
             payload['include_details'] = include_details
         response = self.session.get(f"{self.endpoint}bots/{bot_number}", headers=self.headers, params=payload)
+        # print(orjson.loads(response.text))  # for debugging
         response = BaseResponse(**orjson.loads(response.text))
         if response.success:
             if isinstance(response.data, dict):
