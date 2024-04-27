@@ -123,15 +123,7 @@ class Position:
         Close this specific bot position. This is only valid during market hours and while the bot is set to Enabled or Disable on Close.
         Auth Required: Write Positions
         """
-        # TODO: clarify what is query even used for
-        query = {
-            'bot': self.bot.number,
-            'status': 'String',
-            'from_date': 'String',
-            'to_date': 'String',
-            'page': 'Integer'
-        }
-        response = self.client.session.post(f"{self.client.endpoint}bots/positions/{self.number}/close", headers=self.client.headers, params=query)  # TODO: clarify if it is POST or GET
+        response = self.client.session.put(f"{self.client.endpoint}bots/positions/{self.number}/close", headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if response.success:
             self.__init__(PositionResponse(**response.data), self.client, self.auto_refresh)

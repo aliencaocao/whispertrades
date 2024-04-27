@@ -329,7 +329,7 @@ class Bot:
         Open a new position for the bot. This is only valid during market hours, while the bot is enabled, and while the bot has no more than one position currently open. This API request will ignore any entry filters configured for the bot and will immediately enter a new position when submitted.
         Auth Required: Write Positions
         """
-        response = requests.post(self.endpoint + 'open', headers=self.client.headers)  # TODO: clarify if it is POST or PUT
+        response = requests.post(self.endpoint + 'open', headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if not response.success:
             raise APIError(response.message)
