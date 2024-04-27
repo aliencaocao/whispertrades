@@ -7,6 +7,8 @@ setup(
     long_description='A python package for Whispertrades API. Built on pydantic and requests. Requires Python 3.8+.',
     author='Billy Cao',
     author_email='aliencaocao@gmail.com',
+    maintainer='Billy Cao',
+    maintainer_email='aliencaocao@gmail.com',
     url='https://github.com/aliencaocao/whispertrades',
     packages=find_packages(),
     install_requires=[
@@ -29,4 +31,6 @@ setup(
         'Topic :: Office/Business :: Financial :: Investment',
         'Topic :: Software Development :: Libraries :: Application Frameworks'
     ],
+    license='CC-BY-4.0',
+    keywords='whispertrades api python'
 )
