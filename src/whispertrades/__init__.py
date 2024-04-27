@@ -26,7 +26,7 @@ class WTClient:
         """
         :param token: API token obtained from WhisperTrade
         :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
-        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access. This can be slow. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
+        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access. This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
         :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
         :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
         """
@@ -80,6 +80,7 @@ class WTClient:
     def get_bots(self, statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         """
         Get information of all bots
+        Auth Required: Read Bots
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
         :param include_details: Optional, defaults to False.
         """
@@ -88,6 +89,7 @@ class WTClient:
     def get_bot(self, bot_number: str, include_details: bool = True):
         """
         Get information of a bot by number
+        Auth Required: Read Bots
         :param bot_number: e.g. BYZ8UNMX8M
         :param include_details: Optional, defaults to True.
         """
@@ -96,7 +98,10 @@ class WTClient:
 
     @property
     def bots(self) -> dict[str, Bot]:
-        """Returns a list of Bot objects that was cached by the previous call to get_bots(). To refresh, call get_bots() again (not needed if auto_refresh was set to True). If get_bots() was never called, accessing this attribute will call get_bots() and return the result."""
+        """
+        Returns a list of Bot objects that was cached by the previous call to get_bots(). To refresh, call get_bots() again (not needed if auto_refresh was set to True). If get_bots() was never called, accessing this attribute will call get_bots() and return the result.
+        Auth Required: Read Bots
+        """
         if not self._bots or self.auto_refresh:
             self.__get_bots(include_details=True)
         return self._bots
@@ -160,6 +165,7 @@ class WTClient:
     def get_orders(self, bot: Union[Bot, str] = None, status: Literal["WORKING", "FILLED", "CANCELED"] = None, from_date: date = None, to_date: date = None, page: int = None) -> dict[str, Order]:
         """
         Get orders, optionally filter by bot, status, date, page.
+        Auth Required: Read Orders
         :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
         :param status: Optional, filter by status, valid values are WORKING, FILLED, CANCELED, EXPIRED, REJECTED. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
@@ -171,6 +177,7 @@ class WTClient:
     def get_order(self, number: str) -> Order:
         """
         Get order by number
+        Auth Required: Read Orders
         :param number: e.g. GZH7QT03FD
         """
         self.__get_orders(number=number)
@@ -185,6 +192,7 @@ class WTClient:
 
     def __get_variables(self, number: str = '') -> dict[str, Variable]:
         response = self.session.get(f"{self.endpoint}bots/variables/{number}", headers=self.headers)
+        # print(orjson.loads(response.text))  # for debugging
         response = BaseResponse(**orjson.loads(response.text))
         if response.success:
             if isinstance(response.data, dict):
@@ -202,12 +210,14 @@ class WTClient:
     def get_variables(self) -> dict[str, Variable]:
         """
         Get all variables in this account
+        Auth Required: Read Variables
         """
         return self.__get_variables()
 
     def get_variable(self, number: str) -> Variable:
         """
         Get variable by number
+        Auth Required: Read Variables
         :param number: e.g. GZH7QT03FD
         """
         self.__get_variables(number=number)
@@ -275,6 +285,7 @@ class WTClient:
     def get_positions(self, bot: Union[Bot, str] = None, status: Literal["OPEN", "CLOSE"] = None, from_date: date = None, to_date: date = None, page: int = None) -> dict[str, Position]:
         """
         Get positions, optionally filter by bot, status, date, page.
+        Auth Required: Read Positions
         :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
         :param status: Optional, filter by status, valid values are OPEN and CLOSE. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
@@ -286,6 +297,7 @@ class WTClient:
     def get_position(self, number: str) -> Position:
         """
         Get position by number
+        Auth Required: Read Positions
         :param number: e.g. GZH7QT03FD
         """
         self.__get_positions(number=number)

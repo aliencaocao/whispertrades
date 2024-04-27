@@ -106,7 +106,6 @@ class Position:
         self.current_ask = data.current_ask
         self.current_profit = data.current_profit
         self.current_delta = data.current_delta
-        self.quotes_updated_at = data.quotes_updated_at
         self.entry_value = data.entry_value
         self.exit_value = data.exit_value
         self.max_risk = data.max_risk
@@ -118,6 +117,27 @@ class Position:
         self.vix_at_entry = data.vix_at_entry
         self.vix_at_exit = data.vix_at_exit
         self.legs = data.legs
+
+    def close(self):  # TODO: test when market open
+        """
+        Close this specific bot position. This is only valid during market hours and while the bot is set to Enabled or Disable on Close.
+        Auth Required: Write Positions
+        """
+        # TODO: clarify what is query even used for
+        query = {
+            'bot': self.bot.number,
+            'status': 'String',
+            'from_date': 'String',
+            'to_date': 'String',
+            'page': 'Integer'
+        }
+        response = self.client.session.post(f"{self.client.endpoint}bots/positions/{self.number}/close", headers=self.client.headers, params=query)  # TODO: clarify if it is POST or GET
+        response = BaseResponse(**orjson.loads(response.text))
+        if response.success:
+            self.__init__(PositionResponse(**response.data), self.client, self.auto_refresh)
+            return response.message
+        else:
+            raise APIError(response.message)
 
     def __repr__(self) -> str:
         if self.auto_refresh:
