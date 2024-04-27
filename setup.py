@@ -1,10 +1,10 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='whispertrades',
     version='0.1.0',
     description='A Python package for Whispertrades API',
-    long_description='A python package for Whispertrades API. Built on pydantic V2 for strict type checking, and requests for HTTP requests. Requires Python 3.8+',
+    long_description='A python package for Whispertrades API. Built on pydantic and requests. Requires Python 3.8+.',
     author='Billy Cao',
     author_email='aliencaocao@gmail.com',
     url='https://github.com/aliencaocao/whispertrades',
