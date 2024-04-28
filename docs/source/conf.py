@@ -27,7 +27,7 @@ html_theme_options = {
         "repo": "fontawesome/brands/github",
         "edit": "material/file-edit-outline",
     },
-    "site_url": "https://github.com/aliencaocao/whispertrades/",  # TODO: replace with doc URL
+    "site_url": "https://whispertrades.readthedocs.io/",
     "repo_url": "https://github.com/aliencaocao/whispertrades/",
     "repo_name": "whispertrades",
     "edit_uri": "tree/master/docs/",
