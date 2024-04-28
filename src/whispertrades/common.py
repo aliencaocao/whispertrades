@@ -1,3 +1,4 @@
+import traceback
 from typing import Any, Callable, Union
 
 from pydantic import BaseModel
@@ -19,9 +20,7 @@ class UpdatingDict(dict):
         self.update_fn = update_fn
 
     def __getitem__(self, key):
-        if key not in self:
-            if self.update_fn:
+        if key in self and self.update_fn:
+            if not "IPython\\lib\\pretty.py" in traceback.extract_stack()[-2].filename:  # do not trigger update if called from IPython/Jupyter
                 self[key] = self.update_fn(key)
-            else:
-                raise KeyError(f"Key {key} not found in the dictionary.")
         return super().__getitem__(key)

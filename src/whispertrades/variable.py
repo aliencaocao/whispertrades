@@ -74,8 +74,6 @@ class Variable:
             raise APIError(response.message)
 
     def __repr__(self):
-        if self.auto_refresh:
-            self.client.get_variable(self.number)
         return f'<Variable {self._VariableResponse}>'
 
     def __getattribute__(self, name):

@@ -91,8 +91,6 @@ class Order:
         self.fills = data.fills
 
     def __repr__(self) -> str:
-        if self.auto_refresh:
-            self.client.get_order(self.number)
         return f'<Order {self._OrderResponse}>'
 
     def __getattribute__(self, name):

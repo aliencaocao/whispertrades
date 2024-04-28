@@ -27,7 +27,7 @@ class WTClient:
         """
         :param token: API token obtained from WhisperTrade
         :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
-        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access. This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
+        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access (excluding prints). This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
         :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
         :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
         """
@@ -356,7 +356,7 @@ class WTClient:
         return self._reports[number]
 
     @property
-    def reports(self):  # TODO: accessing key from here dont trigger refresh for that key
+    def reports(self):
         if not self._reports:  # auto refresh is handled in UpdatingDict during client init
             self.__get_reports()
         return self._reports

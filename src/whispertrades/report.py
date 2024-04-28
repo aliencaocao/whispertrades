@@ -148,6 +148,4 @@ class Report:
         pass
 
     def __repr__(self) -> str:
-        if self.auto_refresh:
-            self.client.get_report(self.number)
         return f'<Report {self._ReportResponse}>'

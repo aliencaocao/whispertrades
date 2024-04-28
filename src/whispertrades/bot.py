@@ -301,8 +301,6 @@ class Bot:
         self._positions: dict[str, 'Position'] = {}
 
     def __repr__(self):
-        if self.auto_refresh:
-            self.client.get_bot(self.number, include_details=False)  # dont need detail here as only need the name
         return f'<Bot {self.number} - {self.name}>'
 
     def enable(self):

@@ -132,8 +132,6 @@ class Position:
             raise APIError(response.message)
 
     def __repr__(self) -> str:
-        if self.auto_refresh:
-            self.client.get_position(self.number)
         return f'<Position {self._PositionResponse}>'
 
     def __getattribute__(self, name):
