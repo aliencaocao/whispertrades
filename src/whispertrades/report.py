@@ -148,6 +148,12 @@ class Report:
 
     @property
     def monthly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
+        """
+        Get monthly results for this report
+        Auth Required: Read Reports
+
+        :return: Monthly results for this report in a dictionary with date as key and ResultByTimeframe as value
+        """
         if self.auto_refresh:
             self.client.get_report(self.number)
         elif self._monthly_results is None:
@@ -162,6 +168,12 @@ class Report:
 
     @property
     def yearly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
+        """
+        Get yearly results for this report
+        Auth Required: Read Reports
+
+        :return: Yearly results for this report in a dictionary with date as key and ResultByTimeframe as value
+        """
         if self.auto_refresh:
             self.client.get_report(self.number)
         elif self._yearly_results is None:
@@ -178,6 +190,7 @@ class Report:
         """
         Change a bot report name or date range
         Auth Required: Write Reports
+
         :param name: new name of the report
         :param start_date: new start date for the report
         :param end_date: new end date for the report

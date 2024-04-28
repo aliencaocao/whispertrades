@@ -49,6 +49,7 @@ class Variable:
         """
         Change this variable name or free text value
         Auth Required: Write Variables
+
         :param name: new name of the variable
         :param value: New free text value for the variable. This is only valid if the variable is a "Free Text" type that is not associated with a bot
         :return: message from Whispertrades API

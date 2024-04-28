@@ -23,16 +23,15 @@ class WTClient:
     """
     Client for the WhisperTrade API.
     To initialize, provide a valid API token. Endpoint can be customized if needed e.g. proxy server etc.
+
+    :param token: API token obtained from WhisperTrade
+    :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
+    :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access (excluding prints). This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
+    :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
+    :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
     """
 
     def __init__(self, token: str, auto_init: bool = True, auto_refresh: bool = True, session: Session = None, endpoint: str = ENDPOINT):
-        """
-        :param token: API token obtained from WhisperTrade
-        :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
-        :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access (excluding prints). This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
-        :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
-        :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
-        """
         self.token = token
         self.endpoint = endpoint
         self.auto_refresh = auto_refresh
@@ -87,17 +86,21 @@ class WTClient:
         """
         Get information of all bots
         Auth Required: Read Bots
+
         :param statuses: Optional, list of statuses to filter by, valid values are "Enabled", "Disabled", "Disable on Close"
         :param include_details: Optional, defaults to False.
+        :return: dict of Bot objects where dict key is the bot number
         """
         return self.__get_bots(statuses=statuses, include_details=include_details)
 
-    def get_bot(self, bot_number: str, include_details: bool = True):
+    def get_bot(self, bot_number: str, include_details: bool = True) -> Bot:
         """
         Get information of a bot by number
         Auth Required: Read Bots
+
         :param bot_number: e.g. BYZ8UNMX8M
         :param include_details: Optional, defaults to True.
+        :return: Bot object
         """
         self.__get_bots(bot_number=bot_number, include_details=include_details)
         return self._bots[bot_number]
@@ -172,11 +175,13 @@ class WTClient:
         """
         Get orders, optionally filter by bot, status, date, page.
         Auth Required: Read Orders
+
         :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
         :param status: Optional, filter by status, valid values are WORKING, FILLED, CANCELED, EXPIRED, REJECTED. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
         :param to_date: Optional, filter by date. If empty, do not filter.
         :param page: Optional, defaults to None. If provided, will return orders on that page. If empty, return all pages. Each page is 100 orders. Sorted from newest to oldest.
+        :return: dict of Order objects where dict key is the order number
         """
         return self.__get_orders(bot=bot, status=status, from_date=from_date, to_date=to_date, page=page)
 
@@ -184,7 +189,9 @@ class WTClient:
         """
         Get order by number
         Auth Required: Read Orders
+
         :param number: e.g. GZH7QT03FD
+        :return: Order object
         """
         self.__get_orders(number=number)
         return self._orders[number]
@@ -224,7 +231,9 @@ class WTClient:
         """
         Get variable by number
         Auth Required: Read Variables
+
         :param number: e.g. GZH7QT03FD
+        :return: Variable object
         """
         self.__get_variables(number=number)
         return self._variables[number]
@@ -292,11 +301,13 @@ class WTClient:
         """
         Get positions, optionally filter by bot, status, date, page.
         Auth Required: Read Positions
+
         :param bot: Optional, filter by bot number or Bot instance. If empty, do not filter.
         :param status: Optional, filter by status, valid values are OPEN and CLOSE. If empty, do not filter.
         :param from_date: Optional, filter by date. If empty, do not filter.
         :param to_date: Optional, filter by date. If empty, do not filter.
         :param page: Optional, defaults to None. If provided, will return positions on that page. If empty, return all pages. Each page is 100 orders. Sorted from newest to oldest.
+        :return: dict of Position objects where dict key is the position number
         """
         return self.__get_positions(bot=bot, status=status, from_date=from_date, to_date=to_date, page=page)
 
@@ -305,6 +316,7 @@ class WTClient:
         Get position by number
         Auth Required: Read Positions
         :param number: e.g. GZH7QT03FD
+        :return: Position object
         """
         self.__get_positions(number=number)
         return self._positions[number]
@@ -344,9 +356,11 @@ class WTClient:
 
     def get_reports(self, detailed: bool = False) -> dict[str, Report]:
         """
-        Get all reports in this account. Note that this will NOT return detailed return data for each report.
+        Get all reports in this account. Optionally return detailed return data for each report.
         Auth Required: Read Reports
+
         :param detailed: Optional, defaults to False. If True, will return detailed return data for each report. This can be very slow. It is recommended to use get_report() to get detailed data for a specific report if you do not need all of them at once.
+        :return: dict of Report objects where dict key is the report number
         """
         self.__get_reports()
         if detailed:
@@ -358,7 +372,9 @@ class WTClient:
         """
         Get report by number. Note that this will return detailed return data.
         Auth Required: Read Reports
+
         :param number: e.g. GZH7QT03FD
+        :return: Report object
         """
         if not self.auto_refresh: self.__get_reports(number=number)  # if auto refresh is enabled, accessing the key below already refreshes so do not request again
         return self._reports[number]

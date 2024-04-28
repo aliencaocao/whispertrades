@@ -267,10 +267,6 @@ class BotResponse(BasicBot):
     variables: list[Optional[BotVariable]] = None
 
 
-def toCamalCase(s: str) -> str:
-    return s.replace('_', ' ').title().replace(' ', '')
-
-
 class Bot:
     def __init__(self, data: BotResponse, client: 'WTClient', auto_refresh: bool = True):
         self._BotResponse = data
@@ -351,7 +347,7 @@ class Bot:
         return self._orders
 
     @property
-    def positions(self):
+    def positions(self) -> dict[str, 'Position']:
         if not self._positions or self.auto_refresh:
             positions = self.client.get_positions(bot=self)
             self._positions.update(positions)
