@@ -42,7 +42,6 @@ html_theme_options = {
         "navigation.expand",
         "navigation.prune"
         "toc.follow",
-        "toc.integrate",
         "navigation.top",
         "search.suggest",
         "search.highlight",

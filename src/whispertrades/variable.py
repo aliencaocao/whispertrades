@@ -30,20 +30,20 @@ class VariableResponse(BaseVariable):
 
 class Variable:
     def __init__(self, data: VariableResponse, client: 'WTClient', auto_refresh: bool):
-        self._VariableResponse = data
-        self.client = client
-        self.auto_refresh = auto_refresh
+        self._VariableResponse: VariableResponse = data  #: raw response data from API
+        self.client: 'WTClient' = client  #: the WTClient object that created this instance
+        self.auto_refresh: bool = auto_refresh  #: auto_refresh toggle inherited from WTClient
 
-        self.number = data.number
-        self.name = data.name
-        self.value = data.value
-        self.free_text_value = data.free_text_value
-        self.last_updated_at = data.last_updated_at
-        self.bot = data.bot
-        self.conditions = data.conditions
+        self.number: str = data.number  #: Variable number
+        self.name: str = data.name  #: Variable name
+        self.value: Optional[str] = data.value  #: Variable value
+        self.free_text_value: Optional[str] = data.free_text_value  #: Free text value of the variable
+        self.last_updated_at: Optional[datetime] = data.last_updated_at  #: Last updated at
+        self.bot: Optional[str] = data.bot  #: Bot associated with the variable
+        self.conditions: List[Optional[Condition]] = data.conditions  #: Conditions associated with the variable
 
         if data.bot is None:
-            self.free_text_value = data.value  # Variables not associated with bots are always free text
+            self.free_text_value: Optional[str] = data.value  # Variables not associated with bots are always free text
 
     def update(self, name: str = None, value: str = None) -> str:
         """

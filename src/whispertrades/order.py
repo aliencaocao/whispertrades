@@ -65,30 +65,30 @@ class OrderResponse(BaseModel):
 
 class Order:
     def __init__(self, data: OrderResponse, client: 'WTClient', auto_refresh: bool):
-        self._OrderResponse = data
-        self.client = client
-        self.auto_refresh = auto_refresh
+        self._OrderResponse: OrderResponse = data  #: raw response data from API
+        self.client: 'WTClient' = client  #: the WTClient object that created this instance
+        self.auto_refresh: bool = auto_refresh  #: auto_refresh toggle inherited from WTClient
 
-        self.number = data.number
-        self.broker_order_number = data.broker_order_number
-        self.status = data.status
-        self.type = data.type
-        self.duration = data.duration
-        self.bot = data.bot
-        self.is_paper = data.is_paper
-        self.symbol = data.symbol
-        self.original_quantity = data.original_quantity
-        self.current_quantity = data.current_quantity
-        self.filled_quantity = data.filled_quantity
-        self.order_price = data.order_price
-        self.fill_price = data.fill_price
-        self.broker_fee = data.broker_fee
-        self.submitted_at = data.submitted_at
-        self.filled_at = data.filled_at
-        self.canceled_at = data.canceled_at
-        self.legs = data.legs
-        self.submissions = data.submissions
-        self.fills = data.fills
+        self.number: str = data.number  #: Order number
+        self.broker_order_number: str = data.broker_order_number  #: Broker order number
+        self.status: Literal["WORKING", "FILLED", "CANCELED", "EXPIRED", "REJECTED"] = data.status  #: Order status
+        self.type: Literal["OPENING", "CLOSING"] = data.type  #: Order type
+        self.duration: Literal["GTC", "DAY"] = data.duration  #: Order duration
+        self.bot: Bot = data.bot  #: Bot object
+        self.is_paper: bool = data.is_paper  #: If this is a paper order
+        self.symbol: str = data.symbol  #: Symbol of the order
+        self.original_quantity: int = data.original_quantity  #: Original quantity of the order
+        self.current_quantity: int = data.current_quantity  #: Current quantity of the order
+        self.filled_quantity: int = data.filled_quantity  #: Filled quantity of the order
+        self.order_price: float = data.order_price  #: Order price
+        self.fill_price: Optional[float] = data.fill_price  #: Fill price
+        self.broker_fee: Optional[float] = data.broker_fee  #: Broker fee
+        self.submitted_at: datetime = data.submitted_at  #: Submitted at
+        self.filled_at: Optional[datetime] = data.filled_at  #: Filled at
+        self.canceled_at: Optional[datetime] = data.canceled_at  #: Canceled at
+        self.legs: List[Leg] = data.legs  #: Legs of the order
+        self.submissions: List[Optional[Submission]] = data.submissions  #: Submissions of the order
+        self.fills: List[Optional[Fill]] = data.fills  #: Fills of the order
 
     def __repr__(self) -> str:
         return f'<Order {self._OrderResponse}>'

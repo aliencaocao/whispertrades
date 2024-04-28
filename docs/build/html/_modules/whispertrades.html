@@ -205,9 +205,7 @@
                     
 
 
-  
-
-<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--integrated" data-md-level="0">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a aria-label="Whispertrades 0.1 documentation" class="md-nav__button md-logo" data-md-component="logo" href="../index.html" title="Whispertrades 0.1 documentation">
       
@@ -379,6 +377,21 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           
             <div class="md-content" data-md-component="content">
@@ -386,14 +399,16 @@
                   
 
 
-  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/_modules/whispertrades.rst" title="Edit this page">
+  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/source/_modules/whispertrades.rst" title="Edit this page">
     
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
 <h1>Source code for whispertrades</h1><div class="highlight"><pre>
-<span></span><code><span class="kn">import</span> <span class="nn">warnings</span>
+<span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">orjson</span>
@@ -401,7 +416,7 @@
 <span class="kn">from</span> <span class="nn">requests_ratelimiter</span> <span class="kn">import</span> <span class="n">LimiterAdapter</span>
 
 <span class="kn">from</span> <span class="nn">.bot</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">BotResponse</span>
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">BaseResponse</span><span class="p">,</span> <span class="n">ReportRunningWarning</span><span class="p">,</span> <span class="n">UpdatingDict</span>
+<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">BaseResponse</span><span class="p">,</span> <span class="n">InvalidTokenError</span><span class="p">,</span> <span class="n">ReportRunningWarning</span><span class="p">,</span> <span class="n">TokenPermissionError</span><span class="p">,</span> <span class="n">UpdatingDict</span>
 <span class="kn">from</span> <span class="nn">.order</span> <span class="kn">import</span> <span class="n">Order</span><span class="p">,</span> <span class="n">OrderResponse</span>
 <span class="kn">from</span> <span class="nn">.position</span> <span class="kn">import</span> <span class="n">Position</span><span class="p">,</span> <span class="n">PositionResponse</span>
 <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">Report</span><span class="p">,</span> <span class="n">ReportResponse</span>
@@ -420,15 +435,17 @@
 <span class="sd">    Client for the WhisperTrade API.</span>
 <span class="sd">    To initialize, provide a valid API token. Endpoint can be customized if needed e.g. proxy server etc.</span>
 
-<span class="sd">    :param token: API token obtained from WhisperTrade</span>
+<span class="sd">    :param token: API token obtained from Whispertrade. If not provided, will attempt to read from WHISPERTRADES_API_KEY environment variable.</span>
 <span class="sd">    :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.</span>
 <span class="sd">    :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access (excluding prints). This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().</span>
 <span class="sd">    :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.</span>
 <span class="sd">    :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">auto_init</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ENDPOINT</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auto_init</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">session</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ENDPOINT</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;WHISPERTRADES_API_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;API token is required. Please provide it as an argument or set the WHISPERTRADES_API_KEY environment variable.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span> <span class="o">=</span> <span class="n">endpoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span> <span class="o">=</span> <span class="n">auto_refresh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span> <span class="ow">or</span> <span class="n">Session</span><span class="p">()</span>
@@ -443,12 +460,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span><span class="p">:</span> <span class="n">UpdatingDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">]</span> <span class="o">=</span> <span class="n">UpdatingDict</span><span class="p">(</span><span class="n">update_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_reports_raw</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reports_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="n">auto_init_functions</span> <span class="o">=</span> <span class="p">[</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_bots</span><span class="p">,</span> <span class="n">include_details</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_orders</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_variables</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_reports</span><span class="p">]</span>
+
         <span class="k">if</span> <span class="n">auto_init</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__get_bots</span><span class="p">(</span><span class="n">include_details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__get_orders</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__get_variables</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__get_positions</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__get_reports</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">auto_init_functions</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">func</span><span class="p">()</span>
+                <span class="k">except</span> <span class="n">TokenPermissionError</span><span class="p">:</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Token does not have permission to access </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;__get_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">InvalidTokenError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">InvalidTokenError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid token: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__get_bots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bot_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">statuses</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">include_details</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Bot</span><span class="p">]:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{}</span>
@@ -886,7 +907,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.prunetoc.follow", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "search.share", "toc.sticky", "navigation.sections", "header.autohide", "announce.dismiss", "navigation.footer", "content.action.view"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.prunetoc.follow", "navigation.top", "search.suggest", "search.highlight", "search.share", "toc.sticky", "navigation.sections", "header.autohide", "announce.dismiss", "navigation.footer", "content.action.view"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
       
         <script src="../_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>

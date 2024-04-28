@@ -205,9 +205,7 @@
                     
 
 
-  
-
-<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--integrated" data-md-level="0">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a aria-label="Whispertrades 0.1 documentation" class="md-nav__button md-logo" data-md-component="logo" href="../../index.html" title="Whispertrades 0.1 documentation">
       
@@ -379,6 +377,21 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           
             <div class="md-content" data-md-component="content">
@@ -386,7 +399,7 @@
                   
 
 
-  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/_modules/whispertrades/position.rst" title="Edit this page">
+  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/source/_modules/whispertrades/position.rst" title="Edit this page">
     
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
@@ -482,43 +495,43 @@
 <a class="viewcode-back" href="../../position.html#whispertrades.position.Position">[docs]</a>
 <span class="k">class</span> <span class="nc">Position</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PositionResponse</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;WTClient&#39;</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_PositionResponse</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span> <span class="o">=</span> <span class="n">auto_refresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_PositionResponse</span><span class="p">:</span> <span class="n">PositionResponse</span> <span class="o">=</span> <span class="n">data</span>  <span class="c1">#: raw response data from API</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">:</span> <span class="s1">&#39;WTClient&#39;</span> <span class="o">=</span> <span class="n">client</span>  <span class="c1">#: the WTClient object that created this instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">auto_refresh</span>  <span class="c1">#: auto_refresh toggle inherited from WTClient</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">number</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">status</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bot</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">bot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">broker_connection</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">broker_connection</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_paper</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">is_paper</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tags</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">symbol</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entered_at</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entered_at</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exited_at</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exited_at</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry_bid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_bid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry_ask</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_ask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry_price</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_price</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exit_bid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_bid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exit_ask</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_ask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exit_price</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_price</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">broker_fee</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">broker_fee</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_bid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_bid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_mid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_mid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_ask</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_ask</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_profit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_profit</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_delta</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_delta</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">entry_value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exit_value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_risk</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">max_risk</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">profit_dollars</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">profit_dollars</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">starting_balance</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">starting_balance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ending_balance</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ending_balance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">underlying_at_entry</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">underlying_at_entry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">underlying_at_exit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">underlying_at_exit</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vix_at_entry</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">vix_at_entry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vix_at_exit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">vix_at_exit</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">legs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">legs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">number</span>  <span class="c1">#: Position number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;OPEN&#39;</span><span class="p">,</span> <span class="s1">&#39;CLOSED&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">status</span>  <span class="c1">#: Position status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bot</span><span class="p">:</span> <span class="n">Bot</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">bot</span>  <span class="c1">#: Bot object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">broker_connection</span><span class="p">:</span> <span class="n">BrokerConnection</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">broker_connection</span>  <span class="c1">#: Broker connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_paper</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">is_paper</span>  <span class="c1">#: If this is a paper position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tags</span>  <span class="c1">#: Tags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">symbol</span>  <span class="c1">#: Symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">type</span>  <span class="c1">#: Type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entered_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entered_at</span>  <span class="c1">#: Entered at</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exited_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exited_at</span>  <span class="c1">#: Exited at</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_bid</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_bid</span>  <span class="c1">#: Entry bid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_ask</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_ask</span>  <span class="c1">#: Entry ask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_price</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_price</span>  <span class="c1">#: Entry price</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_bid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_bid</span>  <span class="c1">#: Exit bid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_ask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_ask</span>  <span class="c1">#: Exit ask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_price</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_price</span>  <span class="c1">#: Exit price</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">broker_fee</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">broker_fee</span>  <span class="c1">#: Broker fee</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_bid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_bid</span>  <span class="c1">#: Current bid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_mid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_mid</span>  <span class="c1">#: Current mid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_ask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_ask</span>  <span class="c1">#: Current ask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_profit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_profit</span>  <span class="c1">#: Current profit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_delta</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">current_delta</span>  <span class="c1">#: Current delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">entry_value</span>  <span class="c1">#: Entry value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">exit_value</span>  <span class="c1">#: Exit value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_risk</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">max_risk</span>  <span class="c1">#: Max risk</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profit_dollars</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">profit_dollars</span>  <span class="c1">#: Profit dollars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starting_balance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">starting_balance</span>  <span class="c1">#: Starting balance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ending_balance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ending_balance</span>  <span class="c1">#: Ending balance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlying_at_entry</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">underlying_at_entry</span>  <span class="c1">#: Underlying at entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underlying_at_exit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">underlying_at_exit</span>  <span class="c1">#: Underlying at exit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vix_at_entry</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">vix_at_entry</span>  <span class="c1">#: VIX at entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vix_at_exit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">vix_at_exit</span>  <span class="c1">#: VIX at exit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PositionLeg</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">legs</span>  <span class="c1">#: Legs</span>
 
 <div class="viewcode-block" id="Position.close">
 <a class="viewcode-back" href="../../position.html#whispertrades.position.Position.close">[docs]</a>
@@ -615,7 +628,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.prunetoc.follow", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "search.share", "toc.sticky", "navigation.sections", "header.autohide", "announce.dismiss", "navigation.footer", "content.action.view"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.sections", "navigation.expand", "navigation.prunetoc.follow", "navigation.top", "search.suggest", "search.highlight", "search.share", "toc.sticky", "navigation.sections", "header.autohide", "announce.dismiss", "navigation.footer", "content.action.view"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
       
         <script src="../../_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>

@@ -121,35 +121,39 @@ class ReportResponse(BaseModel):
 
 class Report:
     def __init__(self, data: ReportResponse, client: 'WTClient', auto_refresh: bool):
-        self._ReportResponse = data
-        self.client = client
-        self.auto_refresh = auto_refresh
+        self._ReportResponse: ReportResponse = data  #: raw response data from API
+        self.client: 'WTClient' = client  #: the WTClient object that created this instance
+        self.auto_refresh: bool = auto_refresh  #: auto_refresh toggle inherited from WTClient
 
-        self.number = data.number
-        self.name = data.name
-        self.status = data.status
-        self.completed_at = data.completed_at
-        self.start_date = data.start_date
-        self.end_date = data.end_date
-        self.run_until_latest_date = data.run_until_latest_date
-        self.is_public = data.is_public
-        self.symbol = data.symbol
-        self.nlv_source = data.nlv_source
-        self.nlv_amount = data.nlv_amount
-        self.bot_statuses = data.bot_statuses
-        self.brokers = data.brokers
-        self.bots = data.bots
-        self.bot_tags = data.bot_tags
-        self.bot_position_tags = data.bot_position_tags
-        self.results = data.results
-        self.daily_results = data.results.days
-        self._monthly_results = None
-        self._yearly_results = None
+        self.number: str = data.number  #: Report number
+        self.name: str = data.name  #: Report name
+        self.status: Literal['Complete', 'Running', 'Draft'] = data.status  #: Report status
+        self.completed_at: Optional[datetime] = data.completed_at  #: Completed at
+        self.start_date: date = data.start_date  #: Start date
+        self.end_date: date = data.end_date  #: End date
+        self.run_until_latest_date: bool = data.run_until_latest_date  #: Run until latest date
+        self.is_public: bool = data.is_public  #: Is public
+        self.symbol: str = data.symbol  #: Symbol
+        self.nlv_source: Literal['Actual NLV', 'Percent of NLV', 'Fixed Balance', 'Specific Starting Balance'] = data.nlv_source  #: NLV source
+        self.nlv_amount: Optional[float] = data.nlv_amount  #: NLV amount
+        self.bot_statuses: List[Literal['Enabled', 'Disabled']] = data.bot_statuses  #: Bot statuses
+        self.brokers: Optional[List[BrokerConnection]] = data.brokers  #: Brokers
+        self.bots: List[Optional[BasicBot]] = data.bots  #: Bots
+        self.bot_tags: List[Optional[str]] = data.bot_tags  #: Bot tags
+        self.bot_position_tags: List[Optional[str]] = data.bot_position_tags  #: Bot position tags
+        self.results: Results = data.results  #: Results
+
+        #: Daily results for this report
+        #: Auth Required: Read Reports
+        self.daily_results: List[ResultByDay] = data.results.days
+
+        self._monthly_results: Optional[Dict[date, ResultByTimeframe]] = None
+        self._yearly_results: Optional[Dict[date, ResultByTimeframe]] = None
 
     @property
     def monthly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
         """
-        Get monthly results for this report
+        Monthly results for this report
         Auth Required: Read Reports
 
         :return: Monthly results for this report in a dictionary with date as key and ResultByTimeframe as value
@@ -169,7 +173,7 @@ class Report:
     @property
     def yearly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
         """
-        Get yearly results for this report
+        Yearly results for this report
         Auth Required: Read Reports
 
         :return: Yearly results for this report in a dictionary with date as key and ResultByTimeframe as value

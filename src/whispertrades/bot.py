@@ -269,29 +269,29 @@ class BotResponse(BasicBot):
 
 class Bot:
     def __init__(self, data: BotResponse, client: 'WTClient', auto_refresh: bool = True):
-        self._BotResponse = data
-        self.client = client
-        self.auto_refresh = auto_refresh
+        self._BotResponse: BotResponse = data  #: raw response data from API
+        self.client: 'WTClient' = client  #: the WTClient object that created this instance
+        self.auto_refresh: bool = auto_refresh  #: auto_refresh toggle inherited from WTClient
 
-        self.number: str = data.number
-        self.name: str = data.name
-        self.broker_connection: BrokerConnection = data.broker_connection
-        self.is_paper: bool = data.is_paper
-        self.status: Literal["Enabled", "Disabled", "Disable on Close"] = data.status
-        self.can_enable: bool = data.can_enable
-        self.can_disable: bool = data.can_disable
-        self.symbol: str = data.symbol
-        self.type: str = data.type
-        self.notes: Optional[str] = data.notes
-        self.last_active_at: Optional[datetime] = data.last_active_at
-        self.disabled_at: Optional[datetime] = data.disabled_at
-        self.entry_condition: EntryCondition = data.entry_condition
-        self.exit_condition: ExitCondition = data.exit_condition
-        self.adjustments: list[Optional[Adjustment]] = data.adjustments
-        self.notifications: list[Optional[Notification]] = data.notifications
-        self.variables: list[Optional[BotVariable]] = data.variables
+        self.number: str = data.number  #: Bot number
+        self.name: str = data.name  #: Bot name
+        self.broker_connection: BrokerConnection = data.broker_connection  #: Broker connection for the bot
+        self.is_paper: bool = data.is_paper  #: If the bot is paper trading
+        self.status: Literal["Enabled", "Disabled", "Disable on Close"] = data.status  #: Bot status
+        self.can_enable: bool = data.can_enable  #: If the bot can be enabled
+        self.can_disable: bool = data.can_disable  #: If the bot can be enabled
+        self.symbol: str = data.symbol  #: Instrument ticker for the bot
+        self.type: str = data.type  #: Bot type
+        self.notes: Optional[str] = data.notes  #: Bot notes
+        self.last_active_at: Optional[datetime] = data.last_active_at  #: Last active time
+        self.disabled_at: Optional[datetime] = data.disabled_at  #: Disabled time
+        self.entry_condition: EntryCondition = data.entry_condition  #: Entry condition
+        self.exit_condition: ExitCondition = data.exit_condition  #: Exit condition
+        self.adjustments: list[Optional[Adjustment]] = data.adjustments  #: Adjustments
+        self.notifications: list[Optional[Notification]] = data.notifications  #: Notifications
+        self.variables: list[Optional[BotVariable]] = data.variables  #: Variables
 
-        self.endpoint = f'{self.client.endpoint}bots/{self.number}/'
+        self.endpoint: str = f'{self.client.endpoint}bots/{self.number}/'
 
         self._orders: dict[str, 'Order'] = {}
         self._positions: dict[str, 'Position'] = {}
