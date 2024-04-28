@@ -1,6 +1,7 @@
 import os
 import warnings
 from datetime import date
+from functools import partial
 from typing import Literal, Union
 
 import orjson
@@ -8,7 +9,7 @@ from requests import Session
 from requests_ratelimiter import LimiterAdapter
 
 from .bot import Bot, BotResponse
-from .common import APIError, BaseResponse, ReportRunningWarning, UpdatingDict
+from .common import APIError, BaseResponse, InvalidTokenError, ReportRunningWarning, TokenPermissionError, UpdatingDict
 from .order import Order, OrderResponse
 from .position import Position, PositionResponse
 from .report import Report, ReportResponse
@@ -50,12 +51,16 @@ class WTClient:
         self._reports: UpdatingDict[str, Report] = UpdatingDict(update_fn=self.__get_reports_raw if self.auto_refresh else None)
         self._reports_cache = {}
 
+        auto_init_functions = [partial(self.__get_bots, include_details=True), self.__get_orders, self.__get_variables, self.__get_positions, self.__get_reports]
+
         if auto_init:
-            self.__get_bots(include_details=True)
-            self.__get_orders()
-            self.__get_variables()
-            self.__get_positions()
-            self.__get_reports()
+            for func in auto_init_functions:
+                try:
+                    func()
+                except TokenPermissionError:
+                    warnings.warn(f"Token does not have permission to access {func.__name__.replace('__get_', '')}. Skipping.")
+                except InvalidTokenError:
+                    raise InvalidTokenError(f"Invalid token: {self.token}")
 
     def __get_bots(self, bot_number: str = '', statuses: list = None, include_details: bool = False) -> dict[str, Bot]:
         payload = {}

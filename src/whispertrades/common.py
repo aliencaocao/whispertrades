@@ -11,6 +11,19 @@ class BaseResponse(BaseModel):
 
 
 class APIError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        if message == 'Invalid token permissions':
+            raise TokenPermissionError(message)
+        elif message == 'Not authenticated':
+            raise InvalidTokenError(message)
+
+
+class TokenPermissionError(Exception):
+    pass
+
+
+class InvalidTokenError(Exception):
     pass
 
 
