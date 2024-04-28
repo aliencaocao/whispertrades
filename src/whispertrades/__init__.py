@@ -1,3 +1,4 @@
+import os
 import warnings
 from datetime import date
 from typing import Literal, Union
@@ -24,15 +25,17 @@ class WTClient:
     Client for the WhisperTrade API.
     To initialize, provide a valid API token. Endpoint can be customized if needed e.g. proxy server etc.
 
-    :param token: API token obtained from WhisperTrade
+    :param token: API token obtained from Whispertrade. If not provided, will attempt to read from WHISPERTRADES_API_KEY environment variable.
     :param auto_init: Defaults to True. If True, will automatically query and cache all information about the account that the token has access to. This can be slow.
     :param auto_refresh: Defaults to True. If True, will automatically refresh the attribute on each access (excluding prints). This can be slow and may trigger rate limit. If you do not anticipate them changing often, set this to False. You can also call the respective refresh methods manually e.g. get_orders().
     :param session: Provide your own requests Session object if needed. Defaults to a new session. Rate limiting will be applied on this session.
     :param endpoint: Optional, defaults to https://api.whispertrades.com/v1/, only for debugging or proxying purposes.
     """
 
-    def __init__(self, token: str, auto_init: bool = True, auto_refresh: bool = True, session: Session = None, endpoint: str = ENDPOINT):
-        self.token = token
+    def __init__(self, token: str = None, auto_init: bool = True, auto_refresh: bool = True, session: Session = None, endpoint: str = ENDPOINT):
+        self.token = token or os.getenv('WHISPERTRADES_API_KEY', '')
+        if not self.token:
+            raise ValueError("API token is required. Please provide it as an argument or set the WHISPERTRADES_API_KEY environment variable.")
         self.endpoint = endpoint
         self.auto_refresh = auto_refresh
         self.session = session or Session()
