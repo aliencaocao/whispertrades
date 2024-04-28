@@ -313,7 +313,7 @@ class WTClient:
             self.__get_positions()
         return self._positions
 
-    def __get_reports_raw(self, number: str = '', return_raw: bool = False) -> Report:
+    def __get_reports_raw(self, number: str = '', return_raw: bool = False) -> Union[list[dict], dict, Report]:
         if not number and not return_raw:
             raise ValueError("Report number is required if return_raw is False.")
         response = self.session.get(f"{self.endpoint}bots/reports/{number}", headers=self.headers)
@@ -325,7 +325,7 @@ class WTClient:
         else:
             raise APIError(response.message)
 
-    def __get_reports(self, number: str = ''):
+    def __get_reports(self, number: str = '') -> dict[str, Report]:
         response_data = self.__get_reports_raw(number=number, return_raw=True)
         if isinstance(response_data, dict):
             response_data = [response_data]
@@ -356,7 +356,7 @@ class WTClient:
         return self._reports[number]
 
     @property
-    def reports(self):
+    def reports(self) -> dict[str, Report]:
         if not self._reports:  # auto refresh is handled in UpdatingDict during client init
             self.__get_reports()
         return self._reports

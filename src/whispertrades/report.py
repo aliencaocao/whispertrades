@@ -1,3 +1,4 @@
+import warnings
 from datetime import date, datetime
 from typing import Literal, Optional, TYPE_CHECKING
 
@@ -138,14 +139,36 @@ class Report:
         self.bot_position_tags = data.bot_position_tags
         self.results = data.results
         self.daily_results = data.results.days
+        self._monthly_results = None
+        self._yearly_results = None
 
     @property
-    def monthly_results(self) -> dict[date, ResultByTimeframe]:
-        pass
+    def monthly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
+        if self.auto_refresh:
+            self.client.get_report(self.number)
+        elif self._monthly_results is None:
+            warnings.warn(f'Monthly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', UserWarning)
+        if self.auto_refresh or (self._monthly_results is None and self.results.years is not None):  # if previously uninitialized and now we have the raw data, initialize it. If auto refresh is on, reinitialize anyways
+            r = {}
+            for year in self.results.years.values():
+                for month in year.months.values():
+                    r.update({month.date: month})
+            self._monthly_results = r
+        return self._monthly_results
 
     @property
-    def yearly_results(self) -> dict[date, ResultByTimeframe]:
-        pass
+    def yearly_results(self) -> Optional[dict[date, ResultByTimeframe]]:
+        if self.auto_refresh:
+            self.client.get_report(self.number)
+        elif self._yearly_results is None:
+            warnings.warn(f'Yearly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', UserWarning)
+        if self.auto_refresh or (self._yearly_results is None and self.results.years is not None):  # if previously uninitialized and now we have the raw data, initialize it. If auto refresh is on, reinitialize anyways
+            r = {}
+            for year in self.results.years.values():
+                year = ResultByTimeframe(**year.model_dump(exclude={'months'}))
+                r.update({year.date: year})
+            self._yearly_results = r
+        return self._yearly_results
 
     def __repr__(self) -> str:
         return f'<Report {self._ReportResponse}>'
