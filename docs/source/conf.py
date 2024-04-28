@@ -30,7 +30,7 @@ html_theme_options = {
     "site_url": "https://whispertrades.readthedocs.io/",
     "repo_url": "https://github.com/aliencaocao/whispertrades/",
     "repo_name": "whispertrades",
-    "edit_uri": "tree/master/docs/",
+    "edit_uri": "tree/master/docs/source/",
     "globaltoc_collapse": True,
     "features": [
         "navigation.instant",
