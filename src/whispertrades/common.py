@@ -14,6 +14,14 @@ class APIError(Exception):
     pass
 
 
+class ReportRunningWarning(UserWarning):
+    pass
+
+
+class ReportUninitializedWarning(UserWarning):
+    pass
+
+
 class UpdatingDict(dict):
     def __init__(self, update_fn: Callable[[str], Any] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)

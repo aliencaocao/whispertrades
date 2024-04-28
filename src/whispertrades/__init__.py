@@ -1,3 +1,4 @@
+import warnings
 from datetime import date
 from typing import Literal, Union
 
@@ -6,7 +7,7 @@ from requests import Session
 from requests_ratelimiter import LimiterAdapter
 
 from .bot import Bot, BotResponse
-from .common import APIError, BaseResponse, UpdatingDict
+from .common import APIError, BaseResponse, ReportRunningWarning, UpdatingDict
 from .order import Order, OrderResponse
 from .position import Position, PositionResponse
 from .report import Report, ReportResponse
@@ -15,6 +16,7 @@ from .variable import Variable, VariableResponse
 __version__ = '0.1.0'
 __author__ = 'Billy Cao'
 ENDPOINT = 'https://api.whispertrades.com/v1/'
+warnings.filterwarnings('always', category=ReportRunningWarning)
 
 
 class WTClient:
@@ -44,6 +46,7 @@ class WTClient:
         self._variables: dict[str, Variable] = {}
         self._positions: dict[str, Position] = {}
         self._reports: UpdatingDict[str, Report] = UpdatingDict(update_fn=self.__get_reports_raw if self.auto_refresh else None)
+        self._reports_cache = {}
 
         if auto_init:
             self.__get_bots(include_details=True)
@@ -321,17 +324,22 @@ class WTClient:
         report_data = response.data
         # print(report_data)  # for debugging
         if response.success:
+            if isinstance(report_data, dict) and report_data['status'] == 'Running':  # if number is not supplied then report_data will be list. In this case we don't need to check status as it will always return raw. Another check will be in __get_reports for list case.
+                warnings.warn(f"Report {number} is still running. Please wait for it to complete before accessing the updated Report object. The previously cached Report will be returned, if any.", ReportRunningWarning)
+                return self._reports_cache[number] if number in self._reports_cache else None
             return report_data if return_raw else Report(ReportResponse(**report_data), self, self.auto_refresh)
         else:
             raise APIError(response.message)
 
     def __get_reports(self, number: str = '') -> dict[str, Report]:
         response_data = self.__get_reports_raw(number=number, return_raw=True)
-        if isinstance(response_data, dict):
-            response_data = [response_data]
-        for report_data in response_data:
-            report = Report(ReportResponse(**report_data), self, self.auto_refresh)
-            self._reports[report.number] = report
+        if not isinstance(response_data, Report):  # a cached one returned due to running report
+            if isinstance(response_data, dict):
+                response_data = [response_data]
+            for report_data in response_data:
+                report = Report(ReportResponse(**report_data), self, self.auto_refresh)
+                self._reports[report.number] = report
+        self._reports_cache.update(self._reports)
         return self._reports
 
     def get_reports(self, detailed: bool = False) -> dict[str, Report]:

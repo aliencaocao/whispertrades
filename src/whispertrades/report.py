@@ -2,12 +2,16 @@ import warnings
 from datetime import date, datetime
 from typing import Literal, Optional, TYPE_CHECKING
 
+import orjson
 from pydantic import BaseModel
 
 from .bot import BasicBot, BrokerConnection
+from .common import APIError, BaseResponse, ReportUninitializedWarning
 
 if TYPE_CHECKING:
     from . import WTClient
+
+warnings.filterwarnings('always', category=ReportUninitializedWarning)
 
 
 class BasicReportDetail(BaseModel):
@@ -98,7 +102,7 @@ class Results(BasicReportDetail):
 class ReportResponse(BaseModel):
     number: str
     name: str
-    status: Literal['Complete', 'Running', 'Draft']  # TODO: verify Running
+    status: Literal['Complete', 'Running', 'Draft']
     completed_at: Optional[datetime]
     start_date: date
     end_date: date
@@ -147,7 +151,7 @@ class Report:
         if self.auto_refresh:
             self.client.get_report(self.number)
         elif self._monthly_results is None:
-            warnings.warn(f'Monthly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', UserWarning)
+            warnings.warn(f'Monthly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', ReportUninitializedWarning)
         if self.auto_refresh or (self._monthly_results is None and self.results.years is not None):  # if previously uninitialized and now we have the raw data, initialize it. If auto refresh is on, reinitialize anyways
             r = {}
             for year in self.results.years.values():
@@ -161,7 +165,7 @@ class Report:
         if self.auto_refresh:
             self.client.get_report(self.number)
         elif self._yearly_results is None:
-            warnings.warn(f'Yearly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', UserWarning)
+            warnings.warn(f'Yearly results are not initialized yet for report {self.number} as you have turned off auto refresh. Please run client.get_report({self.number}) or turn on auto refresh to access it.', ReportUninitializedWarning)
         if self.auto_refresh or (self._yearly_results is None and self.results.years is not None):  # if previously uninitialized and now we have the raw data, initialize it. If auto refresh is on, reinitialize anyways
             r = {}
             for year in self.results.years.values():
@@ -169,6 +173,18 @@ class Report:
                 r.update({year.date: year})
             self._yearly_results = r
         return self._yearly_results
+
+    def run(self):
+        """
+        Run/refresh this report using its current configuration
+        Auth Required: Write Reports
+        """
+        response = self.client.session.put(f"{self.client.endpoint}bots/reports/{self.number}/run", headers=self.client.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if response.success:
+            return response.message
+        else:
+            raise APIError(response.message)
 
     def __repr__(self) -> str:
         return f'<Report {self._ReportResponse}>'
