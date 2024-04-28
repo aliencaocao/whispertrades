@@ -174,6 +174,36 @@ class Report:
             self._yearly_results = r
         return self._yearly_results
 
+    def update(self, name: str = None, start_date: date = None, end_date: date = None, run_until_latest_date: bool = None) -> str:
+        """
+        Change a bot report name or date range
+        Auth Required: Write Reports
+        :param name: new name of the report
+        :param start_date: new start date for the report
+        :param end_date: new end date for the report
+        :param run_until_latest_date: whether to run the report until the latest date
+        :return: Update message from Whispertrades API
+        """
+        if not name and not start_date and not end_date and run_until_latest_date is None:
+            raise ValueError('At least one of name, start_date, end_date, or run_until_latest_date is required. Name cannot be empty string.')
+        if start_date and end_date and start_date > end_date:
+            raise ValueError('Start date cannot be after end date.')
+        payload = {}
+        if name:
+            payload['name'] = str(name)
+        if start_date:  # YYYY-MM-DD
+            payload['start_date'] = start_date.isoformat()
+        if end_date:
+            payload['end_date'] = end_date.isoformat()
+        if run_until_latest_date is not None:
+            payload['run_until_latest_date'] = run_until_latest_date
+        response = self.client.session.put(f"{self.client.endpoint}bots/reports/{self.number}", headers=self.client.headers, json=payload)
+        response = BaseResponse(**orjson.loads(response.text))
+        if response.success:
+            return response.message
+        else:
+            raise APIError(response.message)
+
     def run(self):
         """
         Run/refresh this report using its current configuration

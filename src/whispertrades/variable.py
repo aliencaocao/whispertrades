@@ -45,7 +45,7 @@ class Variable:
         if data.bot is None:
             self.free_text_value = data.value  # Variables not associated with bots are always free text
 
-    def edit(self, name: str = None, value: str = None) -> str:
+    def update(self, name: str = None, value: str = None) -> str:
         """
         Change this variable name or free text value
         Auth Required: Write Variables
