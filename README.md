@@ -48,6 +48,8 @@ client.positions['YOUR POSITION NUMBER'].close()
 bot1.positions['YOUR POSITION NUMBER'].close()
 ```
 
+This project has rate limiting built-in using `requests-ratelimiter` and set to 30 requests per minute, the maximum as stated by [Whispertrades documentation](https://docs.whispertrades.com/i1-R-overview#HnA7L).
+
 ## Documentation
 https://whispertrades.readthedocs.io/
 
