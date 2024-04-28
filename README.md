@@ -4,7 +4,7 @@
 [Whispertrades](https://whispertrades.com/) is an advanced automated options trading and backtesting platform. This is an **unofficial** Python wrapper for its [API](https://docs.whispertrades.com/i1-R-overview). It builds on `Pydantic` for strong typing support to ease development, and `requests` library for HTTP requests.
 
 ## Installation
-### Using pip
+### Using pip (To be uploaded)
 ```bash
 pip install whispertrades
 ```
@@ -19,7 +19,7 @@ Create an account at [Whispertrades](https://whispertrades.com/) and follow the 
 To ensure security of your API key, it is recommended to store it in an environment variable. You can do this by using `WHISPERTRADES_API_KEY=your_api_key` in your terminal. Else, you can also pass it in when initializing the client.
 
 ```python3
-from whispertrades import *
+from whispertrades import WTClient
 
 client = WTClient(token='YOUR_API_KEY_OR_DO_NOT_PASS_THIS_IF_YOU_HAVE_SET_ENV_VAR')
 print(client.bots)
