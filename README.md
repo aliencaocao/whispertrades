@@ -1,4 +1,5 @@
 # Whispertrades API Python Wrapper
+[![Documentation Status](https://readthedocs.org/projects/whispertrades/badge/?style=flat-square)](https://whispertrades.readthedocs.io/)
 
 ## About
 [Whispertrades](https://whispertrades.com/) is an advanced automated options trading and backtesting platform. This is an **unofficial** Python wrapper for its [API](https://docs.whispertrades.com/i1-R-overview). It builds on `Pydantic` for strong typing support to ease development, and `requests` library for HTTP requests.
