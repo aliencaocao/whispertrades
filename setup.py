@@ -31,6 +31,12 @@ setup(
         'Topic :: Office/Business :: Financial :: Investment',
         'Topic :: Software Development :: Libraries :: Application Frameworks'
     ],
+    project_urls={
+        "Documentation": "https://whispertrades.readthedocs.io/",
+        "Issues": "https://github.com/aliencaocao/whispertrades/issues",
+        "Releases": "https://github.com/aliencaocao/whispertrades/releases",
+        "Source Code": "https://github.com/aliencaocao/whispertrades",
+    },
     license='Apache 2.0',
     keywords='whispertrades api python'
 )
