@@ -5,7 +5,7 @@
 [Whispertrades](https://whispertrades.com/) is an advanced automated options trading and backtesting platform. This is an **unofficial** Python wrapper for its [API](https://docs.whispertrades.com/i1-R-overview). It builds on `Pydantic` for strong typing support to ease development, and `requests` library for HTTP requests.
 
 ## Installation
-### Using pip (To be uploaded)
+### Using pip
 ```bash
 pip install whispertrades
 ```
