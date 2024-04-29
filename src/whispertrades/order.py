@@ -24,9 +24,9 @@ class Leg(BaseModel):
 class Submission(BaseModel):
     quantity: Optional[int]
     price: float
-    bid: float
+    bid: Optional[float]
     mid: Optional[float]
-    ask: float
+    ask: Optional[float]
     submitted_at: datetime
 
 

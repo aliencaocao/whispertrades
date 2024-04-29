@@ -127,9 +127,9 @@ class WTClient:
         payload = {}
         if bot:
             if isinstance(bot, Bot):
-                bot_number = bot.number + '/'
+                bot_number = bot.number
             elif isinstance(bot, str):
-                bot_number = str(bot) + '/'
+                bot_number = str(bot)
             else:
                 raise TypeError(f"Invalid type for bot, expected Bot or str, got {type(bot)}")
         else:
@@ -257,9 +257,9 @@ class WTClient:
         payload = {}
         if bot:
             if isinstance(bot, Bot):
-                bot_number = bot.number + '/'
+                bot_number = bot.number
             elif isinstance(bot, str):
-                bot_number = str(bot) + '/'
+                bot_number = str(bot)
             else:
                 raise TypeError(f"Invalid type for bot, expected Bot or str, got {type(bot)}")
             payload['bot'] = bot_number
@@ -281,6 +281,7 @@ class WTClient:
             response = self.session.get(f"{self.endpoint}bots/positions/{number}", headers=self.headers, params=payload)
             response = BaseResponse(**orjson.loads(response.text))
             if response.success:
+                # print(response)  # debugging
                 if isinstance(response.data, dict):
                     response.data = [response.data]
                 for position_data in response.data:

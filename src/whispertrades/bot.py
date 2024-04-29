@@ -304,7 +304,7 @@ class Bot:
         Enable a bot that is currently disabled or disable on close
         Auth Required: Write Bots
         """
-        response = requests.put(self.endpoint + 'enable', headers=self.client.headers)
+        response = self.client.session.put(self.endpoint + 'enable', headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if not response.success:
             raise APIError(response.message)
@@ -314,27 +314,27 @@ class Bot:
         Disable a bot that is currently enabled. If the bot has open positions, the bot will move to Disable on Close. If there are no open positions, the bot will move to Disabled.
         Auth Required: Write Bots
         """
-        response = requests.put(self.endpoint + 'disable', headers=self.client.headers)
+        response = self.client.session.put(self.endpoint + 'disable', headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if not response.success:
             raise APIError(response.message)
 
-    def open_position(self):  # TODO: test when market open
+    def open_position(self):
         """
         Open a new position for the bot. This is only valid during market hours, while the bot is enabled, and while the bot has no more than one position currently open. This API request will ignore any entry filters configured for the bot and will immediately enter a new position when submitted.
         Auth Required: Write Positions
         """
-        response = requests.post(self.endpoint + 'open', headers=self.client.headers)
+        response = self.client.session.post(self.endpoint + 'open', headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if not response.success:
             raise APIError(response.message)
 
-    def close_all_positions(self):  # TODO: test when market open
+    def close_all_positions(self):
         """
         Close open position(s) for the bot. This is only valid during market hours and while the bot is set to Enabled or Disable on Close.
         Auth Required: Write Positions
         """
-        response = requests.put(self.endpoint + 'close', headers=self.client.headers)
+        response = self.client.session.put(self.endpoint + 'close', headers=self.client.headers)
         response = BaseResponse(**orjson.loads(response.text))
         if not response.success:
             raise APIError(response.message)

@@ -1,11 +1,13 @@
 from datetime import date, datetime
 from typing import Literal, Optional, TYPE_CHECKING
 
+import orjson
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from . import WTClient
 from .bot import BasicBot as Bot, BrokerConnection
+from .common import APIError, BaseResponse
 
 
 class PositionLeg(BaseModel):
@@ -118,7 +120,7 @@ class Position:
         self.vix_at_exit: Optional[float] = data.vix_at_exit  #: VIX at exit
         self.legs: List[PositionLeg] = data.legs  #: Legs
 
-    def close(self):  # TODO: test when market open
+    def close(self):
         """
         Close this specific bot position. This is only valid during market hours and while the bot is set to Enabled or Disable on Close.
         Auth Required: Write Positions
