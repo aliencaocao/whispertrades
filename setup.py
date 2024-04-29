@@ -19,7 +19,7 @@ setup(
     ],
     python_requires='>=3.8',
     classifiers=[
-        'License :: Creative Commons Attribution 4.0 International Public License',
+        'License :: OSI Approved :: Apache Software License',
         'Development Status :: 4 - Beta',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
@@ -31,6 +31,6 @@ setup(
         'Topic :: Office/Business :: Financial :: Investment',
         'Topic :: Software Development :: Libraries :: Application Frameworks'
     ],
-    license='CC-BY-4.0',
+    license='Apache 2.0',
     keywords='whispertrades api python'
 )

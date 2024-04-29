@@ -58,12 +58,16 @@ https://whispertrades.readthedocs.io/
 This project is strictly provided as-is with absolutely no guarantee. Neither this project nor Whispertrades is an approved financial advisor or broker. The author is not responsible for any financial loss or damages caused by the use of this project or Whispertrades.
 
 ## License
-Whispertrades Python API Wrapper © 2024 by Billy Cao is licensed under CC BY 4.0
+Copyright 2024 Billy Cao
 
-You are free to:
-- Share — copy and redistribute the material in any medium or format for any purpose, even commercially.
-- Adapt — remix, transform, and build upon the material for any purpose, even commercially.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Under the following terms:
-- Attribution — You must give appropriate credit , provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
