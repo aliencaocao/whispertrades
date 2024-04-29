@@ -1,4 +1,6 @@
 # Whispertrades API Python Wrapper
+[![PyPI version](https://badge.fury.io/py/whispertrades.svg)](https://badge.fury.io/py/whispertrades)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/whispertrades)
 [![Documentation Status](https://readthedocs.org/projects/whispertrades/badge/?style=flat-square)](https://whispertrades.readthedocs.io/)
 
 ## About
