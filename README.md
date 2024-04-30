@@ -1,6 +1,7 @@
 # Whispertrades API Python Wrapper
 [![PyPI version](https://badge.fury.io/py/whispertrades.svg)](https://badge.fury.io/py/whispertrades)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/whispertrades)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/whispertrades)](https://pypi.org/project/whispertrades/)
+[![PyPI - Downloads](https://static.pepy.tech/personalized-badge/whispertrades?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pypi.org/project/whispertrades/)
 [![Documentation Status](https://readthedocs.org/projects/whispertrades/badge/?style=flat-square)](https://whispertrades.readthedocs.io/)
 
 ## About
