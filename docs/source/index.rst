@@ -8,7 +8,7 @@ Welcome to whispertrades's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Modules:
 
    whispertrades
    common
