@@ -8,6 +8,7 @@ class BaseResponse(BaseModel):
     success: bool
     message: str
     data: Union[list[dict], dict] = []
+    pages: list = None  # TODO: TBC
 
 
 class APIError(Exception):

@@ -13,6 +13,7 @@ Welcome to whispertrades's documentation!
    whispertrades
    common
    bot
+   broker_connection
    order
    position
    variable

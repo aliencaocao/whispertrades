@@ -9,6 +9,7 @@ from requests import Session
 from requests_ratelimiter import LimiterAdapter
 
 from .bot import Bot, BotResponse
+from .broker_connection import BaseBrokerConnection, BrokerConnection, BrokerConnectionResponse
 from .common import APIError, BaseResponse, InvalidTokenError, ReportRunningWarning, TokenPermissionError, UpdatingDict
 from .order import Order, OrderResponse
 from .position import Position, PositionResponse
@@ -48,6 +49,7 @@ class WTClient:
         self._orders: dict[str, Order] = {}
         self._variables: dict[str, Variable] = {}
         self._positions: dict[str, Position] = {}
+        self._brokers: dict[str, BrokerConnection] = {}
         self._reports: UpdatingDict[str, Report] = UpdatingDict(update_fn=self.__get_reports_raw if self.auto_refresh else None)
         self._reports_cache = {}
 
@@ -122,6 +124,42 @@ class WTClient:
         if not self._bots or self.auto_refresh:
             self.__get_bots(include_details=True)
         return self._bots
+
+    def __get_broker_connections(self, number: str = ''):
+        response = self.session.get(f"{self.endpoint}broker_connections/{number}", headers=self.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if response.success:
+            if isinstance(response.data, dict):
+                response.data = [response.data]
+            for broker_data in response.data:
+                broker = BrokerConnection(BrokerConnectionResponse(**broker_data), self, self.auto_refresh)
+                if broker.number in self._brokers:
+                    self._brokers[broker.number].__dict__.update(broker.__dict__)  # copy the already cached data
+                else:
+                    self._brokers[broker.number] = broker
+            return self._brokers
+        else:
+            raise APIError(response.message)
+
+    def get_broker_connections(self, number: str = ''):
+        """
+        Get a single broker connection or a list of all broker connections
+        Auth Required: Read Broker Connections
+
+        :param number: e.g. GZH7QT03FD
+        :return: dict of Broker Connection objects where dict key is the broker connection number
+        """
+        return self.__get_broker_connections(number=number)
+
+    @property
+    def brokers(self) -> dict[str, BrokerConnection]:
+        """
+        Returns a list of BrokerConnection objects that was cached by the previous call to get_broker_connections(). To refresh, call get_broker_connections() again (not needed if auto_refresh was set to True). If get_broker_connections() was never called, accessing this attribute will call get_broker_connections() and return the result.
+        Auth Required: Read Broker Connections
+        """
+        if not self._brokers or self.auto_refresh:
+            self.__get_broker_connections()
+        return self._brokers
 
     def __get_orders(self, number: str = '', bot: Union[Bot, str] = None, status: Literal["WORKING", "FILLED", "CANCELED"] = None, from_date: date = None, to_date: date = None, page: int = None) -> dict[str, Order]:
         payload = {}

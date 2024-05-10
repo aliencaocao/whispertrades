@@ -10,14 +10,9 @@ if TYPE_CHECKING:
     from .report import Report
 from .common import APIError, BaseResponse
 from .variable import BaseVariable
+from .broker_connection import BaseBrokerConnection
 
 import orjson
-
-
-class BrokerConnection(BaseModel):
-    name: Optional[str]
-    number: str
-    account_number: str
 
 
 class DaysOfWeek(BaseModel):
@@ -250,7 +245,7 @@ class BasicBot(BaseModel):
 
 
 class BotResponse(BasicBot):
-    broker_connection: BrokerConnection
+    broker_connection: BaseBrokerConnection
     is_paper: bool
     status: Literal["Enabled", "Disabled", "Disable on Close"]
     can_enable: bool
@@ -275,7 +270,7 @@ class Bot:
 
         self.number: str = data.number  #: Bot number
         self.name: str = data.name  #: Bot name
-        self.broker_connection: BrokerConnection = data.broker_connection  #: Broker connection for the bot
+        self.broker_connection: BaseBrokerConnection = data.broker_connection  #: Broker connection for the bot
         self.is_paper: bool = data.is_paper  #: If the bot is paper trading
         self.status: Literal["Enabled", "Disabled", "Disable on Close"] = data.status  #: Bot status
         self.can_enable: bool = data.can_enable  #: If the bot can be enabled

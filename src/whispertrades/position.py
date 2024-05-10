@@ -6,8 +6,9 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from . import WTClient
-from .bot import BasicBot as Bot, BrokerConnection
+from .bot import BasicBot as Bot
 from .common import APIError, BaseResponse
+from .broker_connection import BaseBrokerConnection
 
 
 class PositionLeg(BaseModel):
@@ -48,7 +49,7 @@ class PositionResponse(BaseModel):
     number: str
     status: Literal['OPEN', 'CLOSED']
     bot: Bot
-    broker_connection: BrokerConnection
+    broker_connection: BaseBrokerConnection
     is_paper: bool
     tags: str
     symbol: str
@@ -89,7 +90,7 @@ class Position:
         self.number: str = data.number  #: Position number
         self.status: Literal['OPEN', 'CLOSED'] = data.status  #: Position status
         self.bot: Bot = data.bot  #: Bot object
-        self.broker_connection: BrokerConnection = data.broker_connection  #: Broker connection
+        self.broker_connection: BaseBrokerConnection = data.broker_connection  #: Broker connection
         self.is_paper: bool = data.is_paper  #: If this is a paper position
         self.tags: str = data.tags  #: Tags
         self.symbol: str = data.symbol  #: Symbol

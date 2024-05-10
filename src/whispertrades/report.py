@@ -5,7 +5,8 @@ from typing import Literal, Optional, TYPE_CHECKING
 import orjson
 from pydantic import BaseModel
 
-from .bot import BasicBot, BrokerConnection
+from .bot import BasicBot
+from .broker_connection import BaseBrokerConnection
 from .common import APIError, BaseResponse, ReportUninitializedWarning
 
 if TYPE_CHECKING:
@@ -112,7 +113,7 @@ class ReportResponse(BaseModel):
     nlv_source: Literal['Actual NLV', 'Percent of NLV', 'Fixed Balance', 'Specific Starting Balance']
     nlv_amount: Optional[float]
     bot_statuses: list[Literal['Enabled', 'Disabled']]
-    brokers: Optional[list[BrokerConnection]]
+    brokers: Optional[list[BaseBrokerConnection]]
     bots: list[Optional[BasicBot]]
     bot_tags: list[Optional[str]]
     bot_position_tags: list[Optional[str]]
@@ -137,7 +138,7 @@ class Report:
         self.nlv_source: Literal['Actual NLV', 'Percent of NLV', 'Fixed Balance', 'Specific Starting Balance'] = data.nlv_source  #: NLV source
         self.nlv_amount: Optional[float] = data.nlv_amount  #: NLV amount
         self.bot_statuses: List[Literal['Enabled', 'Disabled']] = data.bot_statuses  #: Bot statuses
-        self.brokers: Optional[List[BrokerConnection]] = data.brokers  #: Brokers
+        self.brokers: Optional[List[BaseBrokerConnection]] = data.brokers  #: Brokers
         self.bots: List[Optional[BasicBot]] = data.bots  #: Bots
         self.bot_tags: List[Optional[str]] = data.bot_tags  #: Bot tags
         self.bot_position_tags: List[Optional[str]] = data.bot_position_tags  #: Bot position tags
