@@ -1,4 +1,4 @@
-bot
+broker_connection
 ===
 
 .. automodule:: whispertrades.broker_connection
