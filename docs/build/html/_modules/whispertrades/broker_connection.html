@@ -13,7 +13,7 @@
     
     
       
-        <title>whispertrades.common - Whispertrades 0.1 documentation</title>
+        <title>whispertrades.broker_connection - Whispertrades 0.1 documentation</title>
       
     
     
@@ -89,7 +89,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              whispertrades.common
+              whispertrades.broker_connection
             
           </span>
         </div>
@@ -444,80 +444,58 @@
                   
 
 
-  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/source/_modules/whispertrades/common.rst" title="Edit this page">
+  <a class="md-content__button md-icon" href="https://github.com/aliencaocao/whispertrades/tree/master/docs/source/_modules/whispertrades/broker_connection.rst" title="Edit this page">
     
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
   </a>
 
-<h1>Source code for whispertrades.common</h1><div class="highlight"><pre>
-<span></span><code><span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
+<h1>Source code for whispertrades.broker_connection</h1><div class="highlight"><pre>
+<span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 
-
-<div class="viewcode-block" id="BaseResponse">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.BaseResponse">[docs]</a>
-<span class="k">class</span> <span class="nc">BaseResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">pages</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">WTClient</span>
 
 
-
-<div class="viewcode-block" id="APIError">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.APIError">[docs]</a>
-<span class="k">class</span> <span class="nc">APIError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="s1">&#39;Invalid token permissions&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TokenPermissionError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">message</span> <span class="o">==</span> <span class="s1">&#39;Not authenticated&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InvalidTokenError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+<div class="viewcode-block" id="BaseBrokerConnection">
+<a class="viewcode-back" href="../../broker_connection.html#whispertrades.broker_connection.BaseBrokerConnection">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseBrokerConnection</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">number</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">account_number</span><span class="p">:</span> <span class="nb">str</span></div>
 
 
 
-<div class="viewcode-block" id="TokenPermissionError">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.TokenPermissionError">[docs]</a>
-<span class="k">class</span> <span class="nc">TokenPermissionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="BrokerConnectionResponse">
+<a class="viewcode-back" href="../../broker_connection.html#whispertrades.broker_connection.BrokerConnectionResponse">[docs]</a>
+<span class="k">class</span> <span class="nc">BrokerConnectionResponse</span><span class="p">(</span><span class="n">BaseBrokerConnection</span><span class="p">):</span>
+    <span class="n">broker</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Active&quot;</span><span class="p">,</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">]</span>
+    <span class="n">net_liquidation_value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">expires_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span></div>
 
 
 
-<div class="viewcode-block" id="InvalidTokenError">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.InvalidTokenError">[docs]</a>
-<span class="k">class</span> <span class="nc">InvalidTokenError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="BrokerConnection">
+<a class="viewcode-back" href="../../broker_connection.html#whispertrades.broker_connection.BrokerConnection">[docs]</a>
+<span class="k">class</span> <span class="nc">BrokerConnection</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">BrokerConnectionResponse</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="s1">&#39;WTClient&#39;</span><span class="p">,</span> <span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_BrokerConnectionResponse</span><span class="p">:</span> <span class="n">BrokerConnectionResponse</span> <span class="o">=</span> <span class="n">data</span>  <span class="c1">#: raw response data from API</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="p">:</span> <span class="s1">&#39;WTClient&#39;</span> <span class="o">=</span> <span class="n">client</span>  <span class="c1">#: the WTClient object that created this instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">auto_refresh</span>  <span class="c1">#: auto_refresh toggle inherited from WTClient</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span>  <span class="c1">#: name of the connection as set by user</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">number</span>  <span class="c1">#: connection number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">account_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">account_number</span>  <span class="c1">#: account number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">broker</span>  <span class="c1">#: broker name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Active&quot;</span><span class="p">,</span> <span class="s2">&quot;Inactive&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">status</span>  <span class="c1">#: connection status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_liquidation_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">net_liquidation_value</span>  <span class="c1">#: net liquidation value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expires_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">expires_at</span>  <span class="c1">#: expiration date. Only for brokers without permanent connection. e.g. Schwab</span>
 
-
-<div class="viewcode-block" id="ReportRunningWarning">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.ReportRunningWarning">[docs]</a>
-<span class="k">class</span> <span class="nc">ReportRunningWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-
-<div class="viewcode-block" id="ReportUninitializedWarning">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.ReportUninitializedWarning">[docs]</a>
-<span class="k">class</span> <span class="nc">ReportUninitializedWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
-    <span class="k">pass</span></div>
-
-
-
-<div class="viewcode-block" id="UpdatingDict">
-<a class="viewcode-back" href="../../common.html#whispertrades.common.UpdatingDict">[docs]</a>
-<span class="k">class</span> <span class="nc">UpdatingDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_fn</span> <span class="o">=</span> <span class="n">update_fn</span>
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_fn</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;IPython</span><span class="se">\\</span><span class="s2">lib</span><span class="se">\\</span><span class="s2">pretty.py&quot;</span> <span class="ow">in</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>  <span class="c1"># do not trigger update if called from IPython/Jupyter</span>
-                <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_fn</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_BrokerConnectionResponse</span><span class="p">)</span></div>
 
 </code></pre></div>
 

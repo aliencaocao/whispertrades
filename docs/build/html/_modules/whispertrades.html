@@ -247,14 +247,14 @@
       
       
         <label class="md-nav__link" for="__nav_1">
-          <span class="md-ellipsis">Contents:<wbr></span>
+          <span class="md-ellipsis">Modules:<wbr></span>
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav aria-label="Contents:" class="md-nav" data-md-level="1">
+      <nav aria-label="Modules:" class="md-nav" data-md-level="1">
         <label class="md-nav__title" for="__nav_1">
           <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Contents:<wbr></span>
+          <span class="md-ellipsis">Modules:<wbr></span>
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -297,6 +297,51 @@
     <li class="md-nav__item">
       <a class="md-nav__link" href="../bot.html">
         <span class="md-ellipsis">bot</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a class="md-nav__link" href="../broker_connection.html">
+        <span class="md-ellipsis">whispertrades.<wbr>broker_<wbr>connection.<wbr>Base<wbr>Broker<wbr>Connection</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a class="md-nav__link" href="../broker_connection.html#whispertrades.broker_connection.BrokerConnection">
+        <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span class="md-ellipsis" title="whispertrades.broker_connection.BrokerConnection (Python class) — Bases: object">whispertrades.<wbr>broker_<wbr>connection.<wbr>Broker<wbr>Connection</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a class="md-nav__link" href="../broker_connection.html#whispertrades.broker_connection.BrokerConnectionResponse">
+        <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span class="md-ellipsis" title="whispertrades.broker_connection.BrokerConnectionResponse (Python class) — Bases: BaseBrokerConnection">whispertrades.<wbr>broker_<wbr>connection.<wbr>Broker<wbr>Connection<wbr>Response</span>
       </a>
     </li>
   
@@ -416,13 +461,14 @@
 <span class="kn">from</span> <span class="nn">requests_ratelimiter</span> <span class="kn">import</span> <span class="n">LimiterAdapter</span>
 
 <span class="kn">from</span> <span class="nn">.bot</span> <span class="kn">import</span> <span class="n">Bot</span><span class="p">,</span> <span class="n">BotResponse</span>
+<span class="kn">from</span> <span class="nn">.broker_connection</span> <span class="kn">import</span> <span class="n">BaseBrokerConnection</span><span class="p">,</span> <span class="n">BrokerConnection</span><span class="p">,</span> <span class="n">BrokerConnectionResponse</span>
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">BaseResponse</span><span class="p">,</span> <span class="n">InvalidTokenError</span><span class="p">,</span> <span class="n">ReportRunningWarning</span><span class="p">,</span> <span class="n">TokenPermissionError</span><span class="p">,</span> <span class="n">UpdatingDict</span>
 <span class="kn">from</span> <span class="nn">.order</span> <span class="kn">import</span> <span class="n">Order</span><span class="p">,</span> <span class="n">OrderResponse</span>
 <span class="kn">from</span> <span class="nn">.position</span> <span class="kn">import</span> <span class="n">Position</span><span class="p">,</span> <span class="n">PositionResponse</span>
 <span class="kn">from</span> <span class="nn">.report</span> <span class="kn">import</span> <span class="n">Report</span><span class="p">,</span> <span class="n">ReportResponse</span>
 <span class="kn">from</span> <span class="nn">.variable</span> <span class="kn">import</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">VariableResponse</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.1.0&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;0.1.1&#39;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Billy Cao&#39;</span>
 <span class="n">ENDPOINT</span> <span class="o">=</span> <span class="s1">&#39;https://api.whispertrades.com/v1/&#39;</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;always&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">ReportRunningWarning</span><span class="p">)</span>
@@ -457,6 +503,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_orders</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Order</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Variable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_positions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Position</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BrokerConnection</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reports</span><span class="p">:</span> <span class="n">UpdatingDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Report</span><span class="p">]</span> <span class="o">=</span> <span class="n">UpdatingDict</span><span class="p">(</span><span class="n">update_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_reports_raw</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reports_cache</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -538,13 +585,52 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__get_bots</span><span class="p">(</span><span class="n">include_details</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bots</span>
 
+    <span class="k">def</span> <span class="nf">__get_broker_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">broker_connections/</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">BaseResponse</span><span class="p">(</span><span class="o">**</span><span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">response</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">broker_data</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="n">broker</span> <span class="o">=</span> <span class="n">BrokerConnection</span><span class="p">(</span><span class="n">BrokerConnectionResponse</span><span class="p">(</span><span class="o">**</span><span class="n">broker_data</span><span class="p">),</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">broker</span><span class="o">.</span><span class="n">number</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span><span class="p">[</span><span class="n">broker</span><span class="o">.</span><span class="n">number</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">broker</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>  <span class="c1"># copy the already cached data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span><span class="p">[</span><span class="n">broker</span><span class="o">.</span><span class="n">number</span><span class="p">]</span> <span class="o">=</span> <span class="n">broker</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">APIError</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WTClient.get_broker_connections">
+<a class="viewcode-back" href="../whispertrades.html#whispertrades.WTClient.get_broker_connections">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_broker_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a single broker connection or a list of all broker connections</span>
+<span class="sd">        Auth Required: Read Broker Connections</span>
+
+<span class="sd">        :param number: e.g. GZH7QT03FD</span>
+<span class="sd">        :return: dict of Broker Connection objects where dict key is the broker connection number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_broker_connections</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">brokers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BrokerConnection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of BrokerConnection objects that was cached by the previous call to get_broker_connections(). To refresh, call get_broker_connections() again (not needed if auto_refresh was set to True). If get_broker_connections() was never called, accessing this attribute will call get_broker_connections() and return the result.</span>
+<span class="sd">        Auth Required: Read Broker Connections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_refresh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__get_broker_connections</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_brokers</span>
+
     <span class="k">def</span> <span class="nf">__get_orders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">bot</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Bot</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;WORKING&quot;</span><span class="p">,</span> <span class="s2">&quot;FILLED&quot;</span><span class="p">,</span> <span class="s2">&quot;CANCELED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">from_date</span><span class="p">:</span> <span class="n">date</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to_date</span><span class="p">:</span> <span class="n">date</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Order</span><span class="p">]:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">bot</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">Bot</span><span class="p">):</span>
-                <span class="n">bot_number</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">number</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+                <span class="n">bot_number</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">number</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">bot_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+                <span class="n">bot_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid type for bot, expected Bot or str, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -684,9 +770,9 @@
         <span class="n">payload</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">bot</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">Bot</span><span class="p">):</span>
-                <span class="n">bot_number</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">number</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+                <span class="n">bot_number</span> <span class="o">=</span> <span class="n">bot</span><span class="o">.</span><span class="n">number</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">bot_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+                <span class="n">bot_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid type for bot, expected Bot or str, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">payload</span><span class="p">[</span><span class="s1">&#39;bot&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bot_number</span>
@@ -708,6 +794,7 @@
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="si">}</span><span class="s2">bots/positions/</span><span class="si">{</span><span class="n">number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">BaseResponse</span><span class="p">(</span><span class="o">**</span><span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+                <span class="c1"># print(response)  # debugging</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="n">response</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">position_data</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>

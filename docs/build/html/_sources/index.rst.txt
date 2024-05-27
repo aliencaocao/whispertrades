@@ -8,11 +8,12 @@ Welcome to whispertrades's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Modules:
 
    whispertrades
    common
    bot
+   broker_connection
    order
    position
    variable
