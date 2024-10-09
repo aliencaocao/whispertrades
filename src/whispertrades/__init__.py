@@ -16,7 +16,7 @@ from .position import Position, PositionResponse
 from .report import Report, ReportResponse
 from .variable import Variable, VariableResponse
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __author__ = 'Billy Cao'
 ENDPOINT = 'https://api.whispertrades.com/v1/'
 warnings.filterwarnings('always', category=ReportRunningWarning)

@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='whispertrades',
-    version='0.1.1',
+    version='0.1.2',
     description='A Python package for Whispertrades API',
     long_description='A python package for Whispertrades API. Built on pydantic and requests. Requires Python 3.8+.',
     author='Billy Cao',
