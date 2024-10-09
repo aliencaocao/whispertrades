@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Literal, Optional, TYPE_CHECKING
 
+import orjson
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from . import WTClient
+from .common import APIError, BaseResponse
 
 
 class BaseBrokerConnection(BaseModel):
@@ -34,5 +36,17 @@ class BrokerConnection:
         self.net_liquidation_value: float = data.net_liquidation_value  #: net liquidation value
         self.expires_at: Optional[datetime] = data.expires_at  #: expiration date. Only for brokers without permanent connection. e.g. Schwab
 
+        self.endpoint: str = f'{self.client.endpoint}broker_connections/{self.number}/'
+
     def __repr__(self):
         return str(self._BrokerConnectionResponse)
+
+    def rebalance_collateral(self):
+        """
+        Rebalance your collateral position for a given broker connection. This requires that the collateral be configured and enabled at Whispertrades. If your current collateral balance is within the minimum and maximum target amounts, a transaction will not happen.
+        Auth Required: Write Broker Connections
+        """
+        response = self.client.session.put(self.endpoint + 'collateral/rebalance', headers=self.client.headers)
+        response = BaseResponse(**orjson.loads(response.text))
+        if not response.success:
+            raise APIError(response.message)
