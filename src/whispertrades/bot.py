@@ -71,6 +71,12 @@ class EntryCondition(BaseModel):
     minimum_days_to_expiration: int
     target_days_to_expiration: int
     maximum_days_to_expiration: int
+    minimum_iv: Optional[float]
+    maximum_iv: Optional[float]
+    minimum_vix: Optional[float]
+    maximum_vix: Optional[float]
+    minimum_underlying_percent_move_from_open: Optional[str]
+    maximum_underlying_percent_move_from_open: Optional[str]
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
     same_day_re_entry: Optional[Literal["Profit", "Loss"]]
@@ -167,6 +173,7 @@ class ExitCondition(BaseModel):
     variables: list[Optional[BotVariable]]
     close_short_strike_only: bool
     sell_abandoned_long_strike: bool
+    trailing_stop_sensitivity: Literal["Patient", "Normal", "Aggressive"]
 
 
 class AdjustmentTime(BaseModel):
@@ -198,6 +205,12 @@ class Adjustment(BaseModel):
     maximum_position_profit_percent: Optional[str]
     minimum_position_otm_percent: Optional[str]
     maximum_position_otm_percent: Optional[str]
+    minimum_iv: Optional[float]
+    maximum_iv: Optional[float]
+    minimum_vix: Optional[float]
+    maximum_vix: Optional[float]
+    minimum_underlying_percent_move_from_open: Optional[str]
+    maximum_underlying_percent_move_from_open: Optional[str]
     minimum_underlying_percent_move_from_close: Optional[str]
     maximum_underlying_percent_move_from_close: Optional[str]
     variables: list[Optional[BotVariable]]
