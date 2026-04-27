@@ -1,4 +1,4 @@
 requests
-pydantic>=2.0
+pydantic>=2.13.3
 orjson
 requests-ratelimiter
